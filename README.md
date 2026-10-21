@@ -51,6 +51,28 @@ Keys on a Mac: space pauses, 1 2 3 set the speed, U opens upgrades.
 - `buy(state, data, id)`, `collect(state, data, { type, value | rival })`.
 - In the browser, `window.hype` gives `state`, `data` and `BASE` for tests.
 
+## Unlocks between runs
+
+The game keeps a save file in the browser (`localStorage` key `hypeinc.progress.v1`).
+After each run it counts wins, checks the achievements and opens new things:
+
+| What | Rule (in `src/data/unlocks.json`) |
+| --- | --- |
+| Sneakers | Finish 1 run |
+| Phone App | Win 1 run |
+| Video Game | Win 2 runs |
+| Burger Chain | Win with 3 different products |
+| Hard mode | Win 1 run |
+| 7 extra brand colours | One per achievement |
+| Challenges | The `unlock` field in `src/data/scenarios.json` |
+
+The 16 achievements are in `src/data/achievements.json`. The start screen has a
+"Trophies and save code" button. The save code is a text the player can copy to
+keep the progress or move it to another device.
+
+Code: `src/progress.js` (rules, no DOM) and `src/progress-ui.js` (screens).
+Run `node tools/progress-check.mjs` after you change the unlock or achievement data.
+
 ## Commands
 
 ```sh
