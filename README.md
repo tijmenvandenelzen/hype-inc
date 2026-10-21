@@ -70,3 +70,5 @@ push to `main`. In the repo settings, set Pages > Source to "GitHub Actions".
 
 Map data: Natural Earth through `world-atlas`. Fonts: Bungee and Bricolage
 Grotesque (SIL OFL). Sound: made from code, CC0.
+
+Live: https://tijmenvandenelzen.github.io/hype-inc/
