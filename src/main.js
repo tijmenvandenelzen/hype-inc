@@ -99,6 +99,7 @@ const upgradeIcon = (u) => (data.product.id === "soda" ? icon(u.id, u.icon) : `<
 // ---------- Canvas ----------
 const canvas = $("map"), ctx = canvas.getContext("2d");
 const stage = $("stage");
+const app = $("app");
 const view = { s: 1, ox: 0, oy: 0, w: 0, h: 0, wrap: false };
 let dirty = true;
 let colors = {};
@@ -118,11 +119,12 @@ function resize() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const oldCenter = view.w ? ((view.w / 2 - view.ox) / view.s) : null;
   view.w = r.width; view.h = r.height;
-  const fit = Math.min(r.width / W, r.height / H);
-  view.s = r.width / r.height < 1.4 ? Math.min(r.height / H, (r.width * 2.3) / W) : fit;
-  view.s = Math.max(view.s, fit);
+  // The whole world always fits on screen, so there is nothing to scroll.
+  view.s = Math.min(r.width / W, r.height / H);
   view.wrap = W * view.s > r.width + 1;
-  view.oy = (r.height - H * view.s) / 2;
+  // Tall screens have room to spare: the map goes up, so the region card fits below it.
+  const spare = r.height - H * view.s;
+  view.oy = spare > 120 ? Math.max(12, (spare - 300) / 2) : spare / 2;
   if (view.wrap) {
     const cx = oldCenter ?? (selected >= 0 ? centroid[selected][0] : W * 0.55);
     view.ox = r.width / 2 - cx * view.s;
@@ -176,20 +178,33 @@ function draw() {
   };
   ctx.shadowBlur = 0;
   ctx.fillStyle = colors.land;
-  dots((i) => owner[i] === 0 && dreg[i] !== selected, Math.max(0.8, s * 0.3));
-  if (selected >= 0) { ctx.fillStyle = colors.landHi; dots((i) => owner[i] === 0 && dreg[i] === selected, Math.max(0.8, s * 0.34)); }
+  dots((i) => owner[i] === 0 && dreg[i] !== selected, Math.max(0.9, s * (s < 6 ? 0.36 : 0.3)));
+  if (selected >= 0) { ctx.fillStyle = colors.landHi; dots((i) => owner[i] === 0 && dreg[i] === selected, Math.max(1, s * (s < 6 ? 0.42 : 0.34))); }
   if (state) {
     state.rivals.forEach((r, k) => {
       ctx.strokeStyle = rivalDef(data, r.id).color;
       ctx.lineWidth = Math.max(0.7, s * 0.16);
-      dots((i) => owner[i] === k + 2, Math.max(0.8, s * 0.3), true);
+      dots((i) => owner[i] === k + 2, Math.max(0.9, s * 0.32), true);
     });
     ctx.fillStyle = colors.brand;
     if (view.w > 500) { ctx.shadowColor = colors.glow; ctx.shadowBlur = s * 0.9; }
-    dots((i) => owner[i] === 1, Math.max(1, s * 0.42));
+    dots((i) => owner[i] === 1, Math.max(1.2, s * (s < 6 ? 0.5 : 0.42)));
     ctx.shadowBlur = 0;
   }
   placeBubbles();
+  placeHome();
+}
+
+// A pulsing ring on your first dot, so a new player sees where they are.
+// It goes away when your colour is easy to see.
+let homeOn = false;
+function placeHome() {
+  const el = $("home");
+  const g = state ? state.regions.findIndex((r) => r.reached && r.entry < 0) : -1;
+  el.hidden = !homeOn || g < 0;
+  if (el.hidden) return;
+  const [x, y] = toScreen(dotOrder(g, -1, state.seed % 1000)[0]);
+  el.style.transform = `translate(${x}px, ${y}px)`;
 }
 
 function toScreen(i) {
@@ -206,12 +221,14 @@ function dotAt(px, py) {
   let u = (px - view.ox) / view.s;
   if (view.wrap) u = ((u % W) + W) % W;
   const v = (py - view.oy) / view.s;
-  let best = -1, bd = 2.2 * 2.2;
+  // A finger is about 20 px wide, so on a small map look further than one dot.
+  const reach = Math.max(2.2, 20 / view.s), k = Math.ceil(reach);
+  let best = -1, bd = reach * reach;
   const r0 = Math.floor(v);
-  for (let r = r0 - 2; r <= r0 + 2; r++) {
+  for (let r = r0 - k; r <= r0 + k; r++) {
     if (r < 0 || r >= MAP.rows) continue;
     const c0 = Math.floor(u - (r % 2 ? 0.5 : 0) - 0.5);
-    for (let c = c0 - 2; c <= c0 + 2; c++) {
+    for (let c = c0 - k; c <= c0 + k; c++) {
       if (c < 0 || c >= MAP.cols) continue;
       const i = grid[r * MAP.cols + c];
       if (i < 0) continue;
@@ -253,6 +270,8 @@ function selectRegion(g) {
   selected = g;
   dirty = true;
   renderRegionCard();
+  // Before launch, the region card replaces the "tap a region" banner.
+  if (mode === "pick") { if (g >= 0) hideBanner(); else showBanner(`Tap a region to launch ${$("brandname").textContent}`); }
 }
 
 const pips = (v, bad) => `<span class="pips${bad ? " bad" : ""}">${[0, 1, 2, 3, 4].map((k) => `<i class="${v * 5 > k + 0.3 ? "on" : ""}"></i>`).join("")}</span>`;
@@ -298,12 +317,20 @@ function spawnBubble(region, value, type, rivalId) {
   if (bubbles.length > 14) return;
   const s = state.regions[region];
   const list = regionDots[region];
-  let i;
-  if (type === "spy") i = list[Math.floor(Math.random() * list.length)];
-  else {
-    const o = dotOrder(region, s.entry, state.seed % 1000);
-    const lit = Math.max(1, Math.min(list.length, Math.round(Math.pow(s.f, 0.75) * list.length)));
-    i = o[Math.floor(Math.random() * lit)];
+  // A hype bubble sits on (or near) a lit dot. Try a few dots and keep the one
+  // furthest from the other bubbles, so bubbles do not hide each other.
+  const o = dotOrder(region, s.entry, state.seed % 1000);
+  const lit = Math.max(1, Math.min(list.length, Math.round(Math.pow(s.f, 0.75) * list.length)));
+  const near = Math.min(list.length, Math.max(lit, 14));
+  const pickDot = () => (type === "spy" ? list[Math.floor(Math.random() * list.length)] : o[Math.floor(Math.random() * near)]);
+  const room = (k) => {
+    const [x, y] = toScreen(k);
+    return bubbles.reduce((m, b) => { const [bx, by] = toScreen(b.dot); return Math.min(m, Math.hypot(bx - x, by - y)); }, Infinity);
+  };
+  let i = pickDot(), best = room(i);
+  for (let t = 0; t < 8 && best < 50; t++) {
+    const k = pickDot(), r = room(k);
+    if (r > best) { i = k; best = r; }
   }
   const el = document.createElement("button");
   el.type = "button";
@@ -397,6 +424,8 @@ function updateHud() {
   $("goalmark").style.left = `${goal * 100}%`;
   $("sharebar").style.width = `${Math.min(100, ws.share * 100)}%`;
   $("rivalsharebar").style.width = `${Math.min(100, ws.rivalShare * 100)}%`;
+  const home = mode === "play" && ws.share < 0.03;
+  if (home !== homeOn) { homeOn = home; dirty = true; }
   $("cash").textContent = fmtCash(state.cash);
   const net = $("net");
   net.textContent = `${money.net >= 0 ? "+" : ""}${fmtCash(money.net)}/day`;
@@ -568,7 +597,6 @@ $("newbtn").onclick = () => {
   clearBubbles();
   if (data.scenario.start) { launch(data.regions.findIndex((g) => g.id === data.scenario.start)); return; }
   mode = "pick";
-  showBanner(`Tap a region to launch ${name}`);
   selectRegion(-1);
 };
 
@@ -632,7 +660,8 @@ function renderUpgrades() {
   $("uphp").textContent = `${state.hp} Hype`;
   $("tabs").innerHTML = data.trees.map((t) => {
     const owned = data.upgrades.filter((u) => u.tree === t.id && state.owned[u.id]).length;
-    return `<button type="button" role="tab" data-t="${t.id}" aria-selected="${t.id === tab}">${esc(t.name)} ${owned}/5</button>`;
+    const total = data.upgrades.filter((u) => u.tree === t.id).length;
+    return `<button type="button" role="tab" class="${owned === total ? "full" : ""}" data-t="${t.id}" aria-selected="${t.id === tab}">${esc(t.name)} <small>${owned}/${total}</small></button>`;
   }).join("");
   $("tabs").querySelectorAll("button").forEach((b) => (b.onclick = () => { sfx("ui_tap"); tab = b.dataset.t; chosenUpgrade = null; renderUpgrades(); }));
   const tree = data.trees.find((t) => t.id === tab);
@@ -840,6 +869,7 @@ function frame(now) {
     }
   }
   if (dirty) draw();
+  if (app.dataset.mode !== mode) app.dataset.mode = mode;
   requestAnimationFrame(frame);
 }
 

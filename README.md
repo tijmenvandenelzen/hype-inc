@@ -42,6 +42,7 @@ Keys on a Mac: space pauses, 1 2 3 set the speed, U opens upgrades.
 | `tools/build.mjs` | Builds `dist/` (web app) and `dist-preview/` (one HTML file). |
 | `tools/smoke.mjs` | Plays the built game in a headless browser and saves screenshots. |
 | `tools/tutorial-test.mjs` | Plays through the tutorial on iPhone and Mac sizes, one screenshot per step. |
+| `tools/look.mjs` | Plays the game on 7 screen sizes (iPhone SE to MacBook), saves a screenshot of each screen and lists small buttons and cut-off text. |
 
 ## Code entry points
 
@@ -84,6 +85,7 @@ npm run sim          # balance check: win rates for 4 bots, all products
 npm run sim -- 40 soda all   # one product, all challenges
 npx serve dist       # play locally
 node tools/tutorial-test.mjs http://localhost:3000 shots   # tutorial check
+node tools/look.mjs http://localhost:3000 shots        # screenshots on phone, tablet and laptop sizes
 ```
 
 ## Tutorial
