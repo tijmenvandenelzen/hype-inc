@@ -1,0 +1,17 @@
+{
+  "_note": "Soda events. Same format as v0.1 events.json, without everyDays (that is in common.json). skipIf ids are from upgrades/soda.json.",
+  "events": [
+    { "id": "heatwave",    "weight": 2, "target": "reached", "minDay": 20, "hotOnly": true, "text": "Heatwave in {region}. Everyone wants a cold {brand}.", "effects": { "boost": { "mult": 2.0, "days": 15 } } },
+    { "id": "healthscare", "weight": 1, "target": "none",    "minDay": 80, "text": "Doctors warn about sugary drinks. Soda sales drop everywhere.", "skipIf": "zero", "skipText": "Doctors warn about sugary drinks. Good thing {brand} Zero has no sugar!", "effects": { "boost": { "mult": 0.6, "days": 25, "all": true } } },
+    { "id": "badbatch",    "weight": 1, "target": "none",    "minDay": 50, "text": "A batch of {brand} tastes weird. The refunds cost $60k.", "effects": { "cash": -60 } },
+    { "id": "festival",    "weight": 2, "target": "reached", "minDay": 25, "text": "{brand} is the official drink of a huge music festival in {region}.", "effects": { "hp": 1, "boost": { "mult": 1.6, "days": 15 } } },
+    { "id": "award",       "weight": 1, "target": "none",    "minDay": 150, "text": "{brand} wins Drink of the Year!", "effects": { "hp": 4 } }
+  ],
+  "headlines": [
+    "Scientists confirm: cold drinks are colder in summer.",
+    "Local cat refuses to drink anything except water.",
+    "Shares in bottle caps hit an all-time high.",
+    "Vending machine in Tokyo now sells 400 flavors.",
+    "Reporter asks a lemon for comment. No reply."
+  ]
+}

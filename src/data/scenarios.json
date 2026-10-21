@@ -1,0 +1,139 @@
+{
+  "_note": "Special start setups. A scenario is an override object for newGame(). Fields not given keep the value from balance.json. See README.md.",
+  "scenarios": [
+    {
+      "id": "kitchen",
+      "name": "Kitchen Start",
+      "icon": "🍳",
+      "difficulty": 1,
+      "unlock": null,
+      "pitch": "The normal game. You pick where to start. One rival, MegaCorp.",
+      "start": null,
+      "owned": [],
+      "rivals": [
+        {
+          "id": "megacorp"
+        }
+      ],
+      "tip": "Spend your first Hype Points on growth. MegaCorp is slow to wake up."
+    },
+    {
+      "id": "tiny-island",
+      "name": "Tiny Island",
+      "icon": "🏝️",
+      "difficulty": 2,
+      "unlock": {
+        "wins": 1
+      },
+      "pitch": "You start in Oceania: rich, online, and only 45 million people. Everyone there loves you. Now get off the island before TrendLab copies you.",
+      "start": "oc",
+      "startShare": 0.08,
+      "startCash": 1000,
+      "hp": 2,
+      "owned": [
+        "loyalty"
+      ],
+      "rivals": [
+        {
+          "id": "trendlab"
+        }
+      ],
+      "balance": {
+        "farSpread": 0.15
+      },
+      "tip": "Your home is too small to win from. Global Shipping or TV Ads get you to the big regions."
+    },
+    {
+      "id": "broke-genius",
+      "name": "Broke Genius",
+      "icon": "💡",
+      "difficulty": 2,
+      "unlock": {
+        "wins": 1
+      },
+      "pitch": "Your product is amazing and your can looks great. But you only have $120k. Every upgrade with upkeep is a risk.",
+      "start": null,
+      "startCash": 350,
+      "hp": 4,
+      "owned": [
+        "recipe",
+        "can"
+      ],
+      "rivals": [
+        {
+          "id": "megacorp"
+        }
+      ],
+      "balance": {
+        "baseCost": 1.5
+      },
+      "events": {
+        "investor": {
+          "weight": 4
+        }
+      },
+      "tip": "Smart Factory first. Watch your cash every day. Premium price can save you."
+    },
+    {
+      "id": "head-start",
+      "name": "They Got There First",
+      "icon": "🏁",
+      "difficulty": 3,
+      "unlock": {
+        "scenarioWon": "broke-genius"
+      },
+      "pitch": "Heritage Brands already has shops everywhere, and its copy is already 15% done. You start in South America with a patent and a pile of Hype Points.",
+      "start": "sa",
+      "startCash": 900,
+      "hp": 10,
+      "owned": [
+        "patent"
+      ],
+      "rivals": [
+        {
+          "id": "heritage",
+          "noticed": true,
+          "progress": 15,
+          "seedRegions": [
+            "we",
+            "na",
+            "ea",
+            "me"
+          ]
+        }
+      ],
+      "tip": "Do not get stuck. Every new region slows Heritage down. Local Flavors opens their walls."
+    },
+    {
+      "id": "three-way",
+      "name": "Three-Way War",
+      "icon": "⚔️",
+      "difficulty": 3,
+      "unlock": {
+        "wins": 3
+      },
+      "pitch": "All three rivals at once. Each has its own copy bar. If any bar hits 100, you lose. You win at 42% of the world, because three rivals take a big part of it.",
+      "start": null,
+      "startCash": 1200,
+      "hp": 5,
+      "owned": [],
+      "rivals": [
+        {
+          "id": "megacorp"
+        },
+        {
+          "id": "trendlab",
+          "rateMult": 0.7
+        },
+        {
+          "id": "heritage",
+          "rateMult": 0.7
+        }
+      ],
+      "tip": "Know who is the biggest danger right now. Lawyers hit only one rival: the one with the highest bar.",
+      "balance": {
+        "winShare": 0.42
+      }
+    }
+  ]
+}

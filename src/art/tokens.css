@@ -1,0 +1,68 @@
+/* Hype Inc. design tokens (art style v1)
+   Direction: "night-time billboard". The world is an LED dot screen and the
+   player's brand lights it up. One dark look; the game has no light theme.
+   Names match the v0.1 build. New names are marked NEW. */
+
+@font-face {
+  font-family: "Bungee";
+  src: url("fonts/Bungee-latin.woff2") format("woff2");
+  font-weight: 400; font-display: swap;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("fonts/BricolageGrotesque-latin.woff2") format("woff2");
+  font-weight: 200 800; font-stretch: 75% 100%; font-display: swap;
+}
+
+:root {
+  /* Surfaces */
+  --ocean:   #0A1022;  /* map background and app background */
+  --land:    #26304F;  /* unlit land dots */
+  --panel:   #121A31;  /* HUD bars, cards, sheets */
+  --panel-2: #1A2442;  /* NEW raised card, pressed button, input */
+  --line:    #2B375E;  /* NEW hairlines, card borders, locked node ring */
+
+  /* Text */
+  --ink:     #F3F5FF;  /* main text, 16:1 on --ocean */
+  --muted:   #98A2C8;  /* labels, secondary text, 7:1 on --panel */
+  --on-color:#0A1022;  /* NEW text and icons on --brand, --hype, --cash */
+
+  /* Game colours */
+  --brand:   #FF6A3D;  /* player's brand. Default "Fizzo orange". Set from the player's pick */
+  --brand-glow: rgba(255,106,61,.45); /* NEW halo for lit dots; derive from --brand */
+  --rival:   #A78BFA;  /* MegaCorp. Map dots drawn as RINGS, so they read without colour */
+  --hype:    #FFD23F;  /* Hype Points and hype bubbles */
+  --cash:    #3DDC84;  /* money up, revenue */
+  --danger:  #FF4D5E;  /* money down, copycat near 100, lose screen */
+
+  /* Player brand choices (start screen). All pass 4.5:1 with --on-color text */
+  --brand-orange: #FF6A3D;
+  --brand-pink:   #FF4FA3;
+  --brand-aqua:   #2EE6C5;
+  --brand-lime:   #B8F23A;
+  --brand-sky:    #4CC9FF;
+
+  /* Type */
+  --font-display: "Bungee", "Arial Black", Impact, system-ui, sans-serif;  /* logo, screen titles, big win numbers. Caps only */
+  --font-ui: "Bricolage Grotesque", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fs-xs: 12px;  --fs-sm: 14px;  --fs-md: 16px;  --fs-lg: 20px;  --fs-xl: 28px;  --fs-2xl: 40px;
+
+  /* Space, shape, motion */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+  --r-sm: 8px; --r-md: 14px; --r-lg: 22px; --r-pill: 999px;
+  --tap: 44px;  /* minimum tap target */
+  --ease-pop: cubic-bezier(.34, 1.56, .64, 1);
+  --t-fast: 120ms; --t-pop: 220ms; --t-slide: 280ms;
+  --shadow: 0 8px 24px rgba(0, 0, 0, .45);
+}
+
+/* Numbers in the HUD must not jump while they count up */
+.num { font-variant-numeric: tabular-nums; }
+
+/* Icon from the sprite: <svg class="icon"><use href="#i-cash"/></svg> */
+.icon { width: 24px; height: 24px; fill: none; stroke: currentColor;
+        stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 0ms; --t-pop: 0ms; --t-slide: 0ms; }
+}

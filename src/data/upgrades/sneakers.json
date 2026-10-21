@@ -1,0 +1,27 @@
+{
+  "_note": "Sneakers upgrades. Same format as v0.1 upgrades.json. Weak spot is copying, so Defense has strong anti-copy upgrades. hologram skips the sn_fakes event, ownfactory skips sn_factory, patent skips sn_copycat.",
+  "trees": [
+    { "id": "product",  "name": "Product",  "blurb": "Make the shoe better so more people want it." },
+    { "id": "channels", "name": "Channels", "blurb": "Get the shoe on more feet and more screens." },
+    { "id": "defense",  "name": "Defense",  "blurb": "Stop copies and keep your fans." }
+  ],
+  "upgrades": [
+    { "id": "comfort",    "tree": "product", "pos": [1, 0], "icon": "👟", "name": "Comfy Soles",     "cost": 3,  "upkeep": 0, "requires": [], "desc": "Soft soles that feel like clouds. Every fan tells more friends.", "effects": { "appeal": 0.25 } },
+    { "id": "colours",    "tree": "product", "pos": [0, 1], "icon": "🎨", "name": "Bold Colours",    "cost": 6,  "upkeep": 0, "requires": ["comfort"], "desc": "Bright colours that pop in photos. Social media works better.", "effects": { "appeal": 0.15, "social": 0.3 } },
+    { "id": "sport",      "tree": "product", "pos": [2, 1], "icon": "🏃", "name": "Sport Line",      "cost": 7,  "upkeep": 0, "requires": ["comfort"], "desc": "Real running shoes. Sporty people who said no now say yes.", "effects": { "appeal": 0.1, "resist": 0.25 } },
+    { "id": "drops",      "tree": "product", "pos": [0, 2], "icon": "⭐", "name": "Limited Drops",   "cost": 15, "upkeep": 2, "requires": ["colours"], "desc": "Only 1000 pairs, then gone. People queue for days. Big appeal and more Hype bubbles.", "effects": { "appeal": 0.45, "bubbles": 0.4 } },
+    { "id": "athlete",    "tree": "product", "pos": [2, 2], "icon": "🏅", "name": "Athlete Shoe",    "cost": 13, "upkeep": 3, "requires": ["sport"], "desc": "A famous athlete gets their own shoe. Hard markets open up.", "effects": { "appeal": 0.2, "resist": 0.35 } },
+
+    { "id": "photos",     "tree": "channels", "pos": [0, 0], "icon": "📸", "name": "Sneaker Photos", "cost": 2,  "upkeep": 1, "requires": [], "desc": "Post cool shoe photos. Works best where people are online a lot.", "effects": { "social": 0.7 } },
+    { "id": "stores",     "tree": "channels", "pos": [2, 0], "icon": "🏬", "name": "Shoe Stores",    "cost": 5,  "upkeep": 2, "requires": [], "desc": "Get into shoe stores. Works best where there are many shops.", "effects": { "shops": 0.6 } },
+    { "id": "heads",      "tree": "channels", "pos": [0, 1], "icon": "🤳", "name": "Sneakerheads",   "cost": 7,  "upkeep": 4, "requires": ["photos"], "desc": "Send free pairs to sneaker collectors online. More fans and more Hype bubbles.", "effects": { "social": 0.6, "bubbles": 0.5 } },
+    { "id": "webshop",    "tree": "channels", "pos": [2, 1], "icon": "🌐", "name": "Web Shop",       "cost": 8,  "upkeep": 3, "requires": ["stores"], "desc": "Ship shoes all over the world. Your brand jumps to new regions much faster.", "effects": { "travel": 1.6, "shops": 0.1, "social": 0.1 } },
+    { "id": "billboards", "tree": "channels", "pos": [1, 2], "icon": "🏙️", "name": "City Billboards", "cost": 14, "upkeep": 8, "requires": [], "requiresAny": ["heads", "webshop"], "desc": "Giant ads in the biggest cities. Growth goes up everywhere, but it costs a lot every day.", "effects": { "tv": 0.7, "travel": 0.5 } },
+
+    { "id": "hologram",   "tree": "defense", "pos": [0, 0], "icon": "🔖", "name": "Hologram Tags",  "cost": 4,  "upkeep": 1, "requires": [], "desc": "A shiny tag proves a pair is real. Fans trust you, and fake copies get caught.", "effects": { "loyalty": 0.3 } },
+    { "id": "ownfactory", "tree": "defense", "pos": [1, 0], "icon": "🏭", "name": "Own Factory",    "cost": 7,  "upkeep": 0, "requires": [], "desc": "Make the shoes yourself. Daily costs go down, each pair earns more, and factory delays do not hurt you.", "effects": { "costCut": 0.25, "margin": 0.2 } },
+    { "id": "patent",     "tree": "defense", "pos": [2, 0], "icon": "📜", "name": "Design Patent",  "cost": 5,  "upkeep": 0, "requires": [], "desc": "Your shoe design is protected. The rival copies you more slowly.", "effects": { "patent": 0.3 } },
+    { "id": "crew",       "tree": "defense", "pos": [0, 1], "icon": "🎉", "name": "Sneaker Crew",   "cost": 10, "upkeep": 2, "requires": ["hologram"], "desc": "Superfans collect Hype bubbles for you and stay loyal.", "effects": { "loyalty": 0.35, "autoCollect": 1 } },
+    { "id": "lawyers",    "tree": "defense", "pos": [2, 1], "icon": "⚖️", "name": "Lawyers",        "cost": 14, "upkeep": 3, "requires": ["patent"], "desc": "Sue the copycat. Their copy loses 20% right now and goes slower after.", "effects": { "patent": 0.2, "setback": 20 } }
+  ]
+}

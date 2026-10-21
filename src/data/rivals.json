@@ -1,0 +1,369 @@
+{
+  "_note": "Three rivals for v0.3. Each object has all fields of v0.1 rival.json (same meaning), plus the new fields in README.md. Copycat progress is in points from 0 to 100. Time is in game days. Placeholders: {rival}, {copy}, {brand}, {region}.",
+  "rivals": [
+    {
+      "id": "megacorp",
+      "name": "MegaCorp",
+      "copy": "CopyCola",
+      "copyPattern": "Mega{brand}",
+      "color": "#a78bfa",
+      "icon": "🏢",
+      "nickname": "The Giant",
+      "tagline": "Why invent when you can copy?",
+      "style": "Slow to notice you, then very strong. The bigger you get, the faster it copies. It fights with money: price wars and giant ad campaigns in rich regions.",
+      "difficulty": 1,
+      "home": "na",
+      "prefers": "wealth",
+      "noticeShare": 0.01,
+      "noticeDay": 120,
+      "copyBaseRate": 0.34,
+      "copyShareRate": 1.8,
+      "growth": 0.06,
+      "spreadChance": 0.012,
+      "steal": 0.04,
+      "spyChance": 0.12,
+      "spySetback": 1.0,
+      "spyLifeMs": 5000,
+      "thinkEvery": [
+        20,
+        30
+      ],
+      "tactics": [
+        {
+          "id": "price-war",
+          "name": "Price war",
+          "weight": 3,
+          "cooldown": 60,
+          "when": {
+            "playerShare": 0.08
+          },
+          "target": "playerTop",
+          "effects": {
+            "boost": {
+              "mult": 0.55,
+              "days": 25
+            },
+            "incomeMult": {
+              "mult": 0.7,
+              "days": 25
+            }
+          },
+          "counter": {
+            "key": "loyalty",
+            "cut": 1.0
+          },
+          "text": "{rival} cuts prices in {region}. Shoppers wait to see who blinks first.",
+          "counterText": "{rival} cuts prices in {region}, but your loyal fans do not care."
+        },
+        {
+          "id": "mega-ads",
+          "name": "Giant ad campaign",
+          "weight": 2,
+          "cooldown": 40,
+          "target": "richestReached",
+          "effects": {
+            "rivalSeed": true,
+            "steal": 0.08
+          },
+          "counter": {
+            "key": "loyalty",
+            "cut": 1.0
+          },
+          "text": "{rival} ads are on every TV channel in {region}."
+        },
+        {
+          "id": "copy-feature",
+          "name": "Copy your newest idea",
+          "weight": 2,
+          "cooldown": 50,
+          "when": {
+            "playerUpgrades": 4
+          },
+          "target": "none",
+          "effects": {
+            "copy": 6
+          },
+          "counter": {
+            "key": "patent",
+            "cut": 2.0
+          },
+          "text": "{rival} copies your newest idea. The {copy} plan moves forward.",
+          "counterText": "{rival} tries to copy your newest idea. Your patent stops most of it."
+        },
+        {
+          "id": "shelf-deal",
+          "name": "Buy the shelves",
+          "weight": 1,
+          "cooldown": 70,
+          "when": {
+            "owns": "shops"
+          },
+          "target": "playerTop",
+          "effects": {
+            "channel": {
+              "shops": 0.6,
+              "days": 30
+            }
+          },
+          "text": "{rival} pays shops in {region} to hide {brand} on the bottom shelf."
+        }
+      ],
+      "lines": {
+        "notice": "{rival} has noticed {brand}. The copy machine starts up.",
+        "half": "{copy} is half done. Lock in your fans now!",
+        "almost": "{copy} is almost ready to launch everywhere!",
+        "lose": "{copy} is in every shop in the world. {brand} is just a memory.",
+        "win": "{rival} quietly drops {copy}. Nobody wanted it."
+      },
+      "tips": [
+        "MegaCorp is slow to wake up. Grow fast in the first months.",
+        "MegaCorp copies faster when you are big. Patents and lawyers slow it most.",
+        "Loyal fans ignore price wars."
+      ]
+    },
+    {
+      "id": "trendlab",
+      "name": "TrendLab",
+      "copy": "TrendFizz",
+      "copyPattern": "{brand}Remix",
+      "color": "#f472b6",
+      "icon": "📸",
+      "nickname": "The Fast Follower",
+      "tagline": "Seen it. Remixed it. Posted it.",
+      "style": "A small, fast startup. It spots you almost at once and fights for hype online. It steals your bubbles and wins in very digital regions. It has little money, so it slows down if the run lasts long.",
+      "difficulty": 2,
+      "home": "ea",
+      "prefers": "digital",
+      "noticeShare": 0.005,
+      "noticeDay": 30,
+      "copyBaseRate": 0.17,
+      "copyShareRate": 0.7,
+      "growth": 0.07,
+      "spreadChance": 0.025,
+      "steal": 0.02,
+      "spyChance": 0.25,
+      "spySetback": 1.0,
+      "spyLifeMs": 3500,
+      "fade": {
+        "afterDay": 250,
+        "mult": 0.6,
+        "text": "{rival} is running low on money. Its copy slows down."
+      },
+      "appealSlows": 0.4,
+      "thinkEvery": [
+        10,
+        18
+      ],
+      "tactics": [
+        {
+          "id": "hijack-trend",
+          "name": "Hijack the trend",
+          "weight": 3,
+          "cooldown": 25,
+          "target": "none",
+          "effects": {
+            "bubbleSteal": {
+              "chance": 0.5,
+              "days": 15
+            }
+          },
+          "counter": {
+            "key": "autoCollect",
+            "cut": 0.8
+          },
+          "text": "{rival} posts first! Half of your Hype bubbles pop for them.",
+          "counterText": "{rival} tries to steal your bubbles, but your fan club is faster."
+        },
+        {
+          "id": "viral-clip",
+          "name": "Viral clip",
+          "weight": 2,
+          "cooldown": 35,
+          "target": "mostDigitalReached",
+          "effects": {
+            "freeze": 10,
+            "rivalSeed": true,
+            "copy": 3
+          },
+          "text": "A {rival} clip goes viral in {region}. Everyone talks about them, not {brand}."
+        },
+        {
+          "id": "steal-influencer",
+          "name": "Steal your influencer",
+          "weight": 2,
+          "cooldown": 60,
+          "when": {
+            "owns": "influence"
+          },
+          "target": "none",
+          "effects": {
+            "channel": {
+              "social": 0.5,
+              "days": 30
+            }
+          },
+          "text": "Your biggest influencer now works for {rival}!"
+        },
+        {
+          "id": "so-last-year",
+          "name": "Make you look old",
+          "weight": 2,
+          "cooldown": 40,
+          "when": {
+            "playerShare": 0.1
+          },
+          "target": "playerTop",
+          "effects": {
+            "boost": {
+              "mult": 0.6,
+              "days": 20
+            },
+            "steal": 0.05
+          },
+          "counter": {
+            "key": "appeal",
+            "cut": 0.8
+          },
+          "text": "{rival} says {brand} is \"so last year\" in {region}. The hype cools down.",
+          "counterText": "{rival} calls {brand} old, but the quality speaks for itself."
+        }
+      ],
+      "lines": {
+        "notice": "{rival} spotted {brand} on day one. The race is on.",
+        "half": "{copy} is trending. Half the copy is done.",
+        "almost": "{rival} is about to drop {copy} worldwide!",
+        "lose": "{copy} is the new thing. {brand} is \"cringe\" now.",
+        "win": "{rival} moves on to the next trend. {brand} is the real thing."
+      },
+      "tips": [
+        "TrendLab starts early but has little money. Survive the first 250 days and it slows down.",
+        "A better product (appeal) slows TrendLab's copy.",
+        "A Fan Club collects bubbles before TrendLab can steal them."
+      ]
+    },
+    {
+      "id": "heritage",
+      "name": "Heritage Brands",
+      "copy": "Grandma's Classic",
+      "copyPattern": "Classic {brand}",
+      "color": "#d97706",
+      "icon": "🏰",
+      "nickname": "The Local Wall",
+      "tagline": "Grandma bought ours. So will you.",
+      "style": "Owns old local brands in many regions. It does not race you, it blocks you: it raises walls in regions you have not reached and pulls fans back with nostalgia. Its copy only goes fast when you stop spreading.",
+      "difficulty": 2,
+      "home": "we",
+      "prefers": "resist",
+      "noticeShare": 0.02,
+      "noticeDay": 120,
+      "copyBaseRate": 0.1,
+      "copyShareRate": 0.5,
+      "growth": 0.03,
+      "spreadChance": 0.008,
+      "steal": 0.04,
+      "spyChance": 0.15,
+      "spySetback": 2.0,
+      "spyLifeMs": 5000,
+      "stuck": {
+        "days": 50,
+        "rate": 0.15,
+        "text": "{brand} has not reached a new region in a while. {rival} speeds up."
+      },
+      "thinkEvery": [
+        15,
+        25
+      ],
+      "tactics": [
+        {
+          "id": "buy-local",
+          "name": "Buy local!",
+          "weight": 3,
+          "cooldown": 30,
+          "target": "playerNext",
+          "effects": {
+            "resist": {
+              "add": 0.3,
+              "days": 60
+            }
+          },
+          "counter": {
+            "key": "resist",
+            "cut": 1.0
+          },
+          "text": "\"Buy local!\" posters go up all over {region}.",
+          "counterText": "\"Buy local!\" posters go up in {region}, but your local flavors fit right in."
+        },
+        {
+          "id": "exclusive-deal",
+          "name": "Exclusive deal",
+          "weight": 1,
+          "cooldown": 90,
+          "when": {
+            "playerRegions": 4
+          },
+          "target": "playerNext",
+          "effects": {
+            "block": 30
+          },
+          "counter": {
+            "key": "travel",
+            "cut": 0.3
+          },
+          "text": "{rival} signs an exclusive deal in {region}. {brand} cannot get in for a month."
+        },
+        {
+          "id": "import-tax",
+          "name": "Import tax",
+          "weight": 2,
+          "cooldown": 60,
+          "when": {
+            "playerRegions": 6
+          },
+          "target": "playerTop",
+          "effects": {
+            "incomeMult": {
+              "mult": 0.65,
+              "days": 45
+            }
+          },
+          "counter": {
+            "key": "costCut",
+            "cut": 1.0
+          },
+          "text": "{region} adds a new tax on foreign brands. {rival} smiles."
+        },
+        {
+          "id": "nostalgia",
+          "name": "Nostalgia campaign",
+          "weight": 2,
+          "cooldown": 45,
+          "when": {
+            "playerShare": 0.12
+          },
+          "target": "playerTop",
+          "effects": {
+            "steal": 0.12,
+            "rivalSeed": true
+          },
+          "counter": {
+            "key": "loyalty",
+            "cut": 1.0
+          },
+          "text": "{rival} brings back a classic from the 90s. Some fans in {region} go back."
+        }
+      ],
+      "lines": {
+        "notice": "{rival} does not like newcomers. The walls go up.",
+        "half": "{rival} holds half the world's shops against {brand}.",
+        "almost": "{rival}'s walls are almost closed. Break through now!",
+        "lose": "Every region chose its old local brand. {brand} is stuck at home.",
+        "win": "Even Grandma drinks {brand} now."
+      },
+      "tips": [
+        "Heritage Brands builds walls. Keep reaching new regions or it speeds up.",
+        "Local Flavors breaks the \"Buy local!\" walls.",
+        "Global Shipping helps you get around exclusive deals."
+      ]
+    }
+  ]
+}

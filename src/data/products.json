@@ -1,5 +1,5 @@
 {
-  "_note": "Starting products. v0.1 has one. appeal and the channel numbers multiply the base growth.",
+  "_note": "5 starting products. Same fields as v0.1 products.json. NEW (needs engine code): effects (same keys as upgrade effects, applied as if always owned; negative values are weak spots), startCash (overrides balance.startCash), upgrades and events (which content files to load), strengths and weakSpots (text for the start screen).",
   "products": [
     {
       "id": "soda",
@@ -8,7 +8,135 @@
       "pitch": "A soda you mixed in your kitchen. Now the whole world needs to taste it.",
       "appeal": 1.0,
       "social": 0.0,
-      "shops": 0.0
+      "shops": 0.0,
+      "effects": {},
+      "startCash": 700,
+      "upgrades": "upgrades/soda.json",
+      "events": [
+        "events/common.json",
+        "events/soda.json"
+      ],
+      "strengths": [
+        "Easy to start",
+        "Sells well in hot regions"
+      ],
+      "weakSpots": [
+        "Health scares hurt sales"
+      ]
+    },
+    {
+      "id": "sneakers",
+      "name": "Sneakers",
+      "defaultBrand": "Stride",
+      "pitch": "You drew a sneaker in your school notebook. Now the whole world wants to wear it.",
+      "appeal": 0.9,
+      "social": 0.2,
+      "shops": 0.0,
+      "effects": {
+        "margin": 0.5,
+        "patent": -0.25,
+        "travel": -0.2
+      },
+      "startCash": 700,
+      "upgrades": "upgrades/sneakers.json",
+      "events": [
+        "events/common.json",
+        "events/sneakers.json"
+      ],
+      "strengths": [
+        "Each fan pays a lot",
+        "Looks great on social media"
+      ],
+      "weakSpots": [
+        "Easy to copy",
+        "Slow to reach new regions"
+      ]
+    },
+    {
+      "id": "app",
+      "name": "Phone App",
+      "defaultBrand": "Pingo",
+      "pitch": "You coded a chat app in your bedroom. Now every phone on Earth needs it.",
+      "appeal": 1.0,
+      "social": 0.4,
+      "shops": 0.0,
+      "effects": {
+        "travel": 0.6,
+        "margin": -0.5,
+        "loyalty": -0.2
+      },
+      "startCash": 550,
+      "upgrades": "upgrades/app.json",
+      "events": [
+        "events/common.json",
+        "events/app.json"
+      ],
+      "strengths": [
+        "Spreads very fast online",
+        "Jumps to new regions quickly"
+      ],
+      "weakSpots": [
+        "Earns little per fan",
+        "Fans switch to copies easily",
+        "Shops do not help much"
+      ]
+    },
+    {
+      "id": "game",
+      "name": "Video Game",
+      "defaultBrand": "Pixel Quest",
+      "pitch": "You built a game with your friends after school. Now the whole world wants to play it.",
+      "appeal": 0.95,
+      "social": 0.3,
+      "shops": 0.1,
+      "effects": {
+        "bubbles": 0.3,
+        "costCut": -0.2
+      },
+      "startCash": 750,
+      "upgrades": "upgrades/game.json",
+      "events": [
+        "events/common.json",
+        "events/game.json"
+      ],
+      "strengths": [
+        "Lots of Hype bubbles",
+        "Streamers love it"
+      ],
+      "weakSpots": [
+        "A game team costs a lot every day",
+        "Players get bored if nothing new comes out"
+      ]
+    },
+    {
+      "id": "burger",
+      "name": "Burger Chain",
+      "defaultBrand": "Burger Bolt",
+      "pitch": "You opened a burger stand at the school fair. Now the whole world lines up for it.",
+      "appeal": 0.9,
+      "social": 0.0,
+      "shops": 0.3,
+      "effects": {
+        "loyalty": 0.3,
+        "margin": 0.2,
+        "travel": -0.4,
+        "costCut": -0.3
+      },
+      "startCash": 900,
+      "upgrades": "upgrades/burger.json",
+      "events": [
+        "events/common.json",
+        "events/burger.json"
+      ],
+      "strengths": [
+        "Fans stay loyal",
+        "Steady money from every fan",
+        "More start cash"
+      ],
+      "weakSpots": [
+        "Very slow to open in new regions",
+        "Restaurants cost a lot every day"
+      ]
     }
   ]
 }

@@ -1,0 +1,36 @@
+{
+  "_note": "News events for every product. Same format as v0.1 events.json. The game loads this file plus the product's own events file (see products.json). Text must fit any product, so it only says {brand}.",
+  "everyDays": [18, 32],
+  "events": [
+    { "id": "streamer",  "weight": 3, "target": "reached",   "minDay": 10, "text": "A famous streamer shows off {brand} live in {region}!", "effects": { "hp": 2, "boost": { "mult": 1.8, "days": 20 } } },
+    { "id": "school",    "weight": 2, "target": "reached",   "minDay": 5,  "text": "Students in {region} start a {brand} club at school.", "effects": { "hp": 1 } },
+    { "id": "viral",     "weight": 2, "target": "none",      "minDay": 40, "text": "A {brand} meme goes viral. 40 million views!", "effects": { "hp": 3 } },
+    { "id": "review",    "weight": 2, "target": "reached",   "minDay": 15, "text": "A big YouTuber in {region} gives {brand} a 10 out of 10.", "effects": { "hp": 1, "boost": { "mult": 1.5, "days": 15 } } },
+    { "id": "celebrity", "weight": 1, "target": "reached",   "minDay": 50, "text": "A movie star is spotted with {brand} in {region}. Photos are everywhere.", "effects": { "boost": { "mult": 2.0, "days": 10 } } },
+    { "id": "tvshow",    "weight": 1, "target": "none",      "minDay": 70, "text": "{brand} shows up in the most popular TV series in the world.", "effects": { "hp": 2, "boost": { "mult": 1.3, "days": 20, "all": true } } },
+    { "id": "holiday",   "weight": 1, "target": "none",      "minDay": 60, "text": "Holiday season! Everyone is buying gifts, and {brand} is on every wish list.", "effects": { "boost": { "mult": 1.4, "days": 12, "all": true } } },
+    { "id": "investor",  "weight": 2, "target": "none",      "minDay": 30, "text": "An investor believes in {brand} and gives you $150k.", "effects": { "cash": 150 } },
+    { "id": "prize",     "weight": 1, "target": "none",      "minDay": 20, "text": "{brand} wins a prize for young founders. You get $80k.", "effects": { "cash": 80, "hp": 1 } },
+    { "id": "taxbill",   "weight": 1, "target": "none",      "minDay": 45, "text": "A surprise tax bill arrives. You pay $50k.", "effects": { "cash": -50 } },
+    { "id": "fakereviews", "weight": 2, "target": "reached", "minDay": 25, "text": "Someone posts fake bad reviews of {brand} in {region}. New fans stay away for a while.", "effects": { "freeze": 8 } },
+    { "id": "storm",     "weight": 1, "target": "reached",   "minDay": 30, "text": "A big storm in {region} cuts the power. Nobody buys anything for a while.", "effects": { "freeze": 10 } },
+    { "id": "tradedeal", "weight": 2, "target": "unreached", "minDay": 40, "text": "A new trade deal brings {brand} to {region}.", "effects": { "reach": true } },
+    { "id": "travelers", "weight": 1, "target": "unreached", "minDay": 60, "text": "Tourists bring {brand} home to {region}. People there want more.", "effects": { "reach": true, "hp": 1 } },
+    { "id": "megahire",  "weight": 2, "target": "none",      "minDay": 0, "needsRival": true, "text": "{rival} hires 200 experts to copy {brand}.", "effects": { "copy": 5 } },
+    { "id": "megaads",   "weight": 2, "target": "reached",   "minDay": 0, "needsRival": true, "text": "{rival} starts a huge ad campaign in {region}.", "effects": { "rivalSeed": true } },
+    { "id": "freebies",  "weight": 1, "target": "reached",   "minDay": 0, "needsRival": true, "text": "{rival} gives away free {copy} in {region} to steal your fans.", "effects": { "rivalSeed": true, "copy": 2 } },
+    { "id": "megaleak",  "weight": 1, "target": "none",      "minDay": 0, "needsRival": true, "text": "Oops! {rival} leaks their own {copy} plans online. They lose time.", "effects": { "copy": -6 } },
+    { "id": "copyflop",  "weight": 1, "target": "none",      "minDay": 0, "needsRival": true, "text": "{copy} gets terrible reviews. People say: just get the real {brand}.", "effects": { "copy": -4, "hp": 1 } },
+    { "id": "spycaught", "weight": 1, "target": "none",      "minDay": 0, "needsRival": true, "text": "A {rival} spy is caught in your office with a fake moustache!", "effects": { "copy": -3, "hp": 1 } }
+  ],
+  "headlines": [
+    "Survey: teenagers check their phones 150 times a day.",
+    "Local dog becomes mayor of a small town. Approval rating: 100%.",
+    "World's longest queue spotted. Nobody knows what it is for.",
+    "Economists agree: money is useful.",
+    "Pigeon steals a sandwich on live TV. Viewers cheer.",
+    "New study: Mondays are still Mondays.",
+    "Man claims he has never seen an advert. Nobody believes him.",
+    "Shopping mall opens a shop that only sells other shops."
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "_note": "Burger Chain upgrades. Same format as v0.1 upgrades.json. Weak spots are slow travel and high costs, so Franchises and Bulk Buying fix them. kitchen skips bb_inspection, veggie skips bb_meat.",
+  "trees": [
+    { "id": "product",  "name": "Product",  "blurb": "Make the food better so more people come back." },
+    { "id": "channels", "name": "Channels", "blurb": "Open more places and get more people through the door." },
+    { "id": "defense",  "name": "Defense",  "blurb": "Keep your regulars and your money." }
+  ],
+  "upgrades": [
+    { "id": "sauce",     "tree": "product", "pos": [1, 0], "icon": "🍔", "name": "Secret Sauce",     "cost": 3,  "upkeep": 0, "requires": [], "desc": "A sauce nobody can stop eating. Every fan tells more friends.", "effects": { "appeal": 0.25 } },
+    { "id": "fries",     "tree": "product", "pos": [0, 1], "icon": "🍟", "name": "Crispy Fries",     "cost": 5,  "upkeep": 0, "requires": ["sauce"], "desc": "The best fries in town. People post them online.", "effects": { "appeal": 0.15, "social": 0.2 } },
+    { "id": "veggie",    "tree": "product", "pos": [2, 1], "icon": "🥗", "name": "Veggie Burger",    "cost": 7,  "upkeep": 0, "requires": ["sauce"], "desc": "A tasty burger with no meat. More people say yes, and meat prices hurt you less.", "effects": { "appeal": 0.1, "resist": 0.3 } },
+    { "id": "combo",     "tree": "product", "pos": [0, 2], "icon": "🥤", "name": "Combo Meals",      "cost": 12, "upkeep": 1, "requires": ["fries"], "desc": "Burger, fries and a drink for one price. Each visit earns more and you get more Hype bubbles.", "effects": { "appeal": 0.3, "margin": 0.2, "bubbles": 0.2 } },
+    { "id": "localmenu", "tree": "product", "pos": [2, 2], "icon": "🌮", "name": "Local Menus",      "cost": 12, "upkeep": 1, "requires": ["veggie"], "desc": "A spicy burger in Mexico, a teriyaki burger in Japan. Hard markets open up.", "effects": { "resist": 0.45 } },
+
+    { "id": "photos",    "tree": "channels", "pos": [0, 0], "icon": "📱", "name": "Food Photos",      "cost": 2,  "upkeep": 1, "requires": [], "desc": "Post photos of juicy burgers. Works best where people are online a lot.", "effects": { "social": 0.5 } },
+    { "id": "delivery",  "tree": "channels", "pos": [2, 0], "icon": "🛵", "name": "Delivery App",     "cost": 4,  "upkeep": 2, "requires": [], "desc": "Burgers delivered to your door. Works best where there are many shops.", "effects": { "shops": 0.4, "social": 0.2 } },
+    { "id": "mascot",    "tree": "channels", "pos": [0, 1], "icon": "⚡", "name": "Bolt the Mascot",  "cost": 7,  "upkeep": 3, "requires": ["photos"], "desc": "A fun mascot that kids love. More fans and more Hype bubbles.", "effects": { "social": 0.5, "bubbles": 0.5 } },
+    { "id": "franchise", "tree": "channels", "pos": [2, 1], "icon": "🏪", "name": "Franchises",       "cost": 9,  "upkeep": 2, "requires": ["delivery"], "desc": "Other people open restaurants with your name. Your brand jumps to new regions much faster.", "effects": { "travel": 2.0, "shops": 0.3 } },
+    { "id": "tvads",     "tree": "channels", "pos": [1, 2], "icon": "📺", "name": "TV Ads",           "cost": 14, "upkeep": 9, "requires": [], "requiresAny": ["mascot", "franchise"], "desc": "Ads during the big match. Growth goes up everywhere, but it costs a lot every day.", "effects": { "tv": 0.7, "travel": 0.5 } },
+
+    { "id": "kitchen",   "tree": "defense", "pos": [0, 0], "icon": "🧽", "name": "Spotless Kitchens", "cost": 3,  "upkeep": 1, "requires": [], "desc": "Clean kitchens, happy guests. Health inspections never hurt you.", "effects": { "loyalty": 0.2 } },
+    { "id": "bulk",      "tree": "defense", "pos": [1, 0], "icon": "🚚", "name": "Bulk Buying",       "cost": 6,  "upkeep": 0, "requires": [], "desc": "Buy buns by the truckload. Daily costs go down a lot.", "effects": { "costCut": 0.35, "margin": 0.1 } },
+    { "id": "recipe",    "tree": "defense", "pos": [2, 0], "icon": "🔐", "name": "Secret Recipe",     "cost": 6,  "upkeep": 0, "requires": [], "desc": "Nobody knows what is in the sauce. The rival copies you more slowly.", "effects": { "patent": 0.3 } },
+    { "id": "regulars",  "tree": "defense", "pos": [0, 1], "icon": "💳", "name": "Regulars Club",     "cost": 9,  "upkeep": 2, "requires": ["kitchen"], "desc": "The 10th burger is free. Regulars collect Hype bubbles for you and stay loyal.", "effects": { "loyalty": 0.35, "autoCollect": 1 } },
+    { "id": "lawyers",   "tree": "defense", "pos": [2, 1], "icon": "⚖️", "name": "Lawyers",           "cost": 14, "upkeep": 3, "requires": ["recipe"], "desc": "Sue the copycat. Their copy loses 20% right now and goes slower after.", "effects": { "patent": 0.2, "setback": 20 } }
+  ]
+}

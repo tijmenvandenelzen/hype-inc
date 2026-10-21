@@ -1,7 +1,7 @@
 {
   "name": "Hype Inc.",
   "short_name": "Hype Inc.",
-  "description": "Spread your homemade soda across the world before MegaCorp copies it.",
+  "description": "Grow your homemade product into a world brand before the big companies copy it.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

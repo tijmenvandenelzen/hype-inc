@@ -1,0 +1,18 @@
+{
+  "_note": "Video Game events. Same format as v0.1 events.json, without everyDays (that is in common.json). skipIf ids are from upgrades/game.json.",
+  "events": [
+    { "id": "game_speedrun", "weight": 2, "target": "reached", "minDay": 20, "text": "A speedrunner in {region} sets a {brand} world record live. Chat goes wild!", "effects": { "hp": 1, "boost": { "mult": 1.7, "days": 15 } } },
+    { "id": "game_esports",  "weight": 1, "target": "reached", "minDay": 90, "text": "{brand} becomes an official esports game in {region}.", "effects": { "boost": { "mult": 2.0, "days": 20 } } },
+    { "id": "game_goty",     "weight": 1, "target": "none",    "minDay": 120, "text": "A big gaming magazine calls {brand} Game of the Year!", "effects": { "hp": 4 } },
+    { "id": "game_bug",      "weight": 2, "target": "reached", "minDay": 25, "text": "Game-breaking bug! Players in {region} cannot get past level 3.", "skipIf": "patch", "skipText": "Players in {region} find a bug, and your patch fixes it the same day.", "effects": { "freeze": 10 } },
+    { "id": "game_bored",    "weight": 2, "target": "none",    "minDay": 100, "text": "Players say {brand} is getting old. They want something new.", "skipIf": "season", "skipText": "Players thought {brand} was getting old, but the new season brings everyone back.", "effects": { "boost": { "mult": 0.75, "days": 20, "all": true } } },
+    { "id": "game_clone",    "weight": 2, "target": "none",    "minDay": 0, "needsRival": true, "text": "{rival} releases {copy}, a game that plays just like {brand}. Some players try it.", "effects": { "copy": 4, "boost": { "mult": 0.8, "days": 10, "all": true } } }
+  ],
+  "headlines": [
+    "Gamer finishes a 100-hour game. Asks for a sequel.",
+    "Study: 'one more level' is never one more level.",
+    "Controller found under the sofa after 3 years. Still has battery.",
+    "Cat walks on keyboard, wins online match.",
+    "Parents ask: is a high score a real score?"
+  ]
+}

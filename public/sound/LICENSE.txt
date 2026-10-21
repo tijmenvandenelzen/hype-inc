@@ -1,0 +1,12 @@
+Hype Inc. sound effects and music
+
+All audio files in this folder were made from code by source/generate.py.
+They use no recordings or samples from anyone else.
+
+To the extent possible under law, the authors have waived all copyright and
+related or neighboring rights to these sounds, the code that makes them and
+sound.js, under CC0 1.0 Universal:
+https://creativecommons.org/publicdomain/zero/1.0/
+
+You can copy, change and use them for any purpose, also commercial, without
+asking permission or giving credit.

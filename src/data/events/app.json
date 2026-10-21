@@ -1,0 +1,17 @@
+{
+  "_note": "Phone App events. Same format as v0.1 events.json, without everyDays (that is in common.json). skipIf ids are from upgrades/app.json.",
+  "events": [
+    { "id": "app_featured", "weight": 2, "target": "reached", "minDay": 15, "text": "{brand} is App of the Day in {region}!", "effects": { "hp": 2, "boost": { "mult": 2.0, "days": 10 } } },
+    { "id": "app_crash",    "weight": 2, "target": "none",    "minDay": 40, "text": "Too many users at once! The {brand} servers crash and people are angry.", "skipIf": "cloud", "skipText": "Millions of new users join {brand} at once, but your cloud servers handle it easily.", "effects": { "boost": { "mult": 0.5, "days": 10, "all": true } } },
+    { "id": "app_bug",      "weight": 1, "target": "none",    "minDay": 50, "text": "A bug sends the same message 1000 times. Oops. Fixing it costs $40k.", "skipIf": "testers", "skipText": "Your beta testers find a nasty bug before anyone else sees it. Nice save!", "effects": { "cash": -40 } },
+    { "id": "app_privacy",  "weight": 1, "target": "none",    "minDay": 80, "text": "News report: is {brand} safe for your data? Some users delete the app.", "skipIf": "privacy", "skipText": "News report asks if apps are safe. {brand} users feel fine, thanks to Privacy Mode.", "effects": { "boost": { "mult": 0.7, "days": 20, "all": true } } },
+    { "id": "app_blocked",  "weight": 1, "target": "reached", "minDay": 90, "text": "{region} blocks {brand} for a while because it is not in the local language.", "skipIf": "translate", "skipText": "{region} checks all foreign apps. {brand} speaks the local language, so it stays.", "effects": { "freeze": 15 } }
+  ],
+  "headlines": [
+    "Grandma learns to send emojis. Family group chat will never be the same.",
+    "Phone battery lasts a full day. Scientists are amazed.",
+    "Survey: most people have 80 apps but use 9.",
+    "Man drops phone in soup. Phone fine. Soup ruined.",
+    "New app counts how many apps you have. It is very popular."
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "license": "CC0-1.0",
+  "sfx": {
+    "ui_tap": {
+      "file": "audio/ui_tap.mp3",
+      "when": "Any button tap.",
+      "seconds": 0.07,
+      "volume": 1.0,
+      "maxVoices": 3,
+      "minGap": 0.03
+    },
+    "ui_back": {
+      "file": "audio/ui_back.mp3",
+      "when": "Back or cancel button.",
+      "seconds": 0.09,
+      "volume": 1.0,
+      "maxVoices": 3,
+      "minGap": 0.04
+    },
+    "ui_open": {
+      "file": "audio/ui_open.mp3",
+      "when": "Open a panel (upgrade tree, stats).",
+      "seconds": 0.22,
+      "volume": 1.0,
+      "maxVoices": 3,
+      "minGap": 0.04
+    },
+    "ui_close": {
+      "file": "audio/ui_close.mp3",
+      "when": "Close a panel.",
+      "seconds": 0.2,
+      "volume": 1.0,
+      "maxVoices": 3,
+      "minGap": 0.04
+    },
+    "tick": {
+      "file": "audio/tick.mp3",
+      "when": "Speed change or small toggle.",
+      "seconds": 0.04,
+      "volume": 1.0,
+      "maxVoices": 2,
+      "minGap": 0.03
+    },
+    "bubble_pop": {
+      "file": "audio/bubble_pop.mp3",
+      "when": "Tap a Hype bubble. Play with pitch variance.",
+      "seconds": 0.793,
+      "volume": 1.0,
+      "maxVoices": 6,
+      "minGap": 0.04
+    },
+    "coin": {
+      "file": "audio/coin.mp3",
+      "when": "Hype Points added (auto-collect, small gains).",
+      "seconds": 0.45,
+      "volume": 1.0,
+      "maxVoices": 3,
+      "minGap": 0.06
+    },
+    "cash_in": {
+      "file": "audio/cash_in.mp3",
+      "when": "Big cash gain from an event.",
+      "seconds": 1.487,
+      "volume": 1.0,
+      "maxVoices": 2,
+      "minGap": 0.2
+    },
+    "upgrade_buy": {
+      "file": "audio/upgrade_buy.mp3",
+      "when": "Buy an upgrade.",
+      "seconds": 1.696,
+      "volume": 1.0,
+      "maxVoices": 2,
+      "minGap": 0.08
+    },
+    "denied": {
+      "file": "audio/denied.mp3",
+      "when": "Tap an upgrade you cannot afford or have locked.",
+      "seconds": 0.279,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 0.2
+    },
+    "country_reached": {
+      "file": "audio/country_reached.mp3",
+      "when": "Brand reaches a new region.",
+      "seconds": 1.853,
+      "volume": 1.0,
+      "maxVoices": 2,
+      "minGap": 0.25
+    },
+    "news_good": {
+      "file": "audio/news_good.mp3",
+      "when": "Good news event.",
+      "seconds": 1.513,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 0.5
+    },
+    "news_bad": {
+      "file": "audio/news_bad.mp3",
+      "when": "Bad news event.",
+      "seconds": 1.132,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 0.5
+    },
+    "rival_alert": {
+      "file": "audio/rival_alert.mp3",
+      "when": "Rival notices you, or enters a region.",
+      "seconds": 2.333,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 1.0
+    },
+    "spy_caught": {
+      "file": "audio/spy_caught.mp3",
+      "when": "Tap a rival spy bubble.",
+      "seconds": 1.065,
+      "volume": 1.0,
+      "maxVoices": 3,
+      "minGap": 0.05
+    },
+    "warning": {
+      "file": "audio/warning.mp3",
+      "when": "Low cash, or copycat bar over 75%.",
+      "seconds": 0.429,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 1.0
+    },
+    "milestone": {
+      "file": "audio/milestone.mp3",
+      "when": "World share passes 10%, 25%, 40%.",
+      "seconds": 2.345,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 1.0
+    },
+    "win": {
+      "file": "audio/win.mp3",
+      "when": "Win screen.",
+      "seconds": 4.389,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 1.0
+    },
+    "lose": {
+      "file": "audio/lose.mp3",
+      "when": "Lose screen.",
+      "seconds": 3.712,
+      "volume": 1.0,
+      "maxVoices": 1,
+      "minGap": 1.0
+    }
+  },
+  "music": {
+    "music_menu": {
+      "file": "audio/music_menu.mp3",
+      "when": "Title and menu screens. Calm lo-fi.",
+      "bpm": 92,
+      "bars": 8,
+      "loopStart": 0.652174,
+      "loopSeconds": 20.869569
+    },
+    "music_game": {
+      "file": "audio/music_game.mp3",
+      "when": "During a run. Driving, upbeat, a little tense.",
+      "bpm": 118,
+      "bars": 16,
+      "loopStart": 0.508475,
+      "loopSeconds": 32.542381
+    }
+  }
+}

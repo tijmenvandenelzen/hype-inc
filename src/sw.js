@@ -1,6 +1,6 @@
 // Offline support: keep the game files in a cache and serve them from there.
 const CACHE = "hype-inc-__VERSION__";
-const FILES = ["./", "index.html", "app.js?v=__VERSION__", "style.css?v=__VERSION__", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-180.png"];
+const FILES = ["./", "app.js?v=__VERSION__", "style.css?v=__VERSION__", ...__FILES__];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
@@ -25,7 +25,7 @@ self.addEventListener("fetch", (e) => {
     return;
   }
   e.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-    if (res.ok && (new URL(req.url).origin === location.origin || req.url.includes("fonts.g"))) {
+    if (res.ok && (new URL(req.url).origin === location.origin)) {
       const copy = res.clone();
       caches.open(CACHE).then((c) => c.put(req, copy));
     }

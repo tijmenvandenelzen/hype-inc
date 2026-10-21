@@ -1,13 +1,15 @@
+<!--SPRITE-->
 <div id="app">
   <header id="hud" class="gutter">
     <div class="brandchip"><span class="dot"></span><b id="brandname">Fizzo</b><span class="day" id="day">Day 0</span></div>
     <div class="share" aria-label="World market share">
       <div class="share-top"><span>World market <b id="sharepct">0%</b></span><span>Goal <span id="goalpct">50%</span></span></div>
-      <div class="meter"><div class="mine" id="sharebar"></div><div class="theirs" id="rivalsharebar"></div><div class="goal"></div></div>
+      <div class="meter"><div class="mine" id="sharebar"></div><div class="theirs" id="rivalsharebar"></div><div class="goal" id="goalmark"></div></div>
     </div>
     <div class="stats">
       <div class="stat cash" id="cashstat"><small>Cash</small><b id="cash">$0</b><span class="net" id="net"></span></div>
       <div class="stat hp"><small>Hype</small><b id="hp">0</b></div>
+      <button class="iconbtn small" id="mutebtn" type="button" aria-label="Sound off" aria-pressed="false"></button>
     </div>
   </header>
 
@@ -22,10 +24,7 @@
   </main>
 
   <footer id="bar" class="gutter">
-    <div class="rival" id="rivalbox">
-      <div class="rival-top"><span><b id="copyname">CopyCola</b> <span id="rivalstate">not started</span></span><span class="pct" id="copypct">0%</span></div>
-      <div class="meter"><div class="copy" id="copybar"></div></div>
-    </div>
+    <div class="rivals" id="rivalbox"></div>
     <div class="controls">
       <button class="btn" id="upbtn" type="button">Upgrades <span class="badge" id="upbadge">0</span></button>
       <div class="ctl">
@@ -39,10 +38,10 @@
       <div class="ctl">
         <span class="seg-label">Speed</span>
         <div class="seg" id="speedseg" role="group" aria-label="Speed">
-          <button type="button" data-speed="0" aria-label="Pause">II</button>
-          <button type="button" data-speed="1" aria-label="Normal speed">&#9654;</button>
-          <button type="button" data-speed="2" aria-label="Fast">&#9654;&#9654;</button>
-          <button type="button" data-speed="3" aria-label="Very fast">&#9654;&#9654;&#9654;</button>
+          <button type="button" data-speed="0" aria-label="Pause"><svg class="icon"><use href="#i-pause"/></svg></button>
+          <button type="button" data-speed="1" aria-label="Normal speed"><svg class="icon"><use href="#i-play"/></svg></button>
+          <button type="button" data-speed="2" aria-label="Fast"><svg class="icon"><use href="#i-fast"/></svg></button>
+          <button type="button" data-speed="3" aria-label="Very fast"><svg class="icon"><use href="#i-faster"/></svg></button>
         </div>
       </div>
     </div>
@@ -50,25 +49,36 @@
 </div>
 
 <div class="overlay" id="start">
-  <div class="card">
+  <div class="card startcard">
     <h1 class="logo">HYPE<br><em>INC.</em></h1>
-    <p class="pitch" id="pitch">A soda you mixed in your kitchen. Now the whole world needs to taste it.</p>
     <div class="field">
-      <label for="brandinput">Name your drink</label>
+      <span class="label">1. Pick what you sell</span>
+      <div class="products" id="products"></div>
+      <div class="productinfo" id="productinfo"></div>
+    </div>
+    <div class="field">
+      <label for="brandinput">2. Name it</label>
       <input id="brandinput" maxlength="14" autocomplete="off" autocapitalize="words" spellcheck="false" value="Fizzo">
     </div>
     <div class="field">
-      <span class="label">Pick your colour</span>
+      <span class="label">3. Pick your colour</span>
       <div class="swatches" id="swatches"></div>
     </div>
-    <ul class="howto">
-      <li><b>1</b><span>Pick a region to launch in. Your colour spreads as people fall in love with your drink.</span></li>
-      <li><b>2</b><span>Tap the yellow bubbles to earn Hype Points. Spend them on upgrades.</span></li>
-      <li><b>3</b><span>Watch your cash. Upgrades cost money every day, and at $0 you are out.</span></li>
-      <li><b>4</b><span>MegaCorp will try to copy you. Tap their purple spy bubbles to slow them down. Own half the world before their copy is ready.</span></li>
-    </ul>
+    <div class="field">
+      <span class="label">4. Pick a challenge</span>
+      <div class="scenarios" id="scenarios"></div>
+    </div>
+    <details class="howto-box">
+      <summary>How to play</summary>
+      <ul class="howto">
+        <li><b>1</b><span>Pick a region to launch in. Your colour spreads as people fall in love with your product.</span></li>
+        <li><b>2</b><span>Tap the yellow bubbles to earn Hype Points. Spend them on upgrades.</span></li>
+        <li><b>3</b><span>Watch your cash. Some upgrades cost money every day, and at $0 you are out.</span></li>
+        <li><b>4</b><span>Rival companies will try to copy you. Tap their spy bubbles to slow them down. Win before any copy is ready.</span></li>
+      </ul>
+    </details>
     <div class="row">
-      <button class="btn" id="newbtn" type="button">Choose where to launch</button>
+      <button class="btn" id="newbtn" type="button">Start</button>
       <button class="btn ghost" id="continuebtn" type="button" hidden>Continue</button>
     </div>
   </div>
@@ -79,7 +89,7 @@
     <div class="sheet-head">
       <h2 id="uptitle">Upgrades</h2>
       <span class="hpchip" id="uphp">0 Hype</span>
-      <button class="iconbtn" id="upclose" type="button" aria-label="Close">&#10005;</button>
+      <button class="iconbtn" id="upclose" type="button" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button>
     </div>
     <div class="tabs" id="tabs" role="tablist"></div>
     <p class="blurb" id="blurb"></p>
@@ -94,6 +104,7 @@
   <div class="card alert" role="alertdialog" aria-modal="true">
     <h2 id="alerttitle">Heads up</h2>
     <p id="alerttext"></p>
+    <p class="tip" id="alerttip" hidden></p>
     <button class="btn" id="alertok" type="button">Got it</button>
   </div>
 </div>

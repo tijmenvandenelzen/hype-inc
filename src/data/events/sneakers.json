@@ -1,0 +1,18 @@
+{
+  "_note": "Sneakers events. Same format as v0.1 events.json, without everyDays (that is in common.json). skipIf ids are from upgrades/sneakers.json.",
+  "events": [
+    { "id": "sn_athlete",  "weight": 1, "target": "none",    "minDay": 60, "text": "A star athlete wins gold wearing {brand}! The whole world saw the shoes.", "effects": { "hp": 3, "boost": { "mult": 1.5, "days": 15, "all": true } } },
+    { "id": "sn_dance",    "weight": 2, "target": "reached", "minDay": 20, "text": "A dance video in {brand} sneakers goes viral in {region}.", "effects": { "boost": { "mult": 1.8, "days": 15 } } },
+    { "id": "sn_resell",   "weight": 2, "target": "reached", "minDay": 35, "text": "Resellers in {region} buy every pair of {brand} and sell them for three times the price. The hype is huge!", "effects": { "hp": 2, "boost": { "mult": 1.4, "days": 10 } } },
+    { "id": "sn_fakes",    "weight": 2, "target": "reached", "minDay": 30, "text": "Fake {brand} sneakers show up at markets in {region}. Real fans get confused.", "skipIf": "hologram", "skipText": "Fake {brand} sneakers show up in {region}, but your hologram tags expose them in a day.", "effects": { "freeze": 10 } },
+    { "id": "sn_factory",  "weight": 2, "target": "reached", "minDay": 30, "text": "Factory delay! Shoe stores in {region} have empty shelves.", "skipIf": "ownfactory", "skipText": "Other brands have factory delays. Your own factory keeps {brand} on the shelves.", "effects": { "freeze": 12 } },
+    { "id": "sn_copycat",  "weight": 2, "target": "none",    "minDay": 0, "needsRival": true, "text": "{rival} launches {copy}, sneakers that look exactly like {brand}.", "skipIf": "patent", "skipText": "{rival} tries to copy the {brand} design, but your patent stops them. For now.", "effects": { "copy": 5 } }
+  ],
+  "headlines": [
+    "Man wears one red and one blue sneaker. Fashion experts call it genius.",
+    "Sneaker collector buys a second house just for shoes.",
+    "Study: new shoes make you run 0% faster but feel 100% faster.",
+    "Lost shoe found on the Moon. NASA says it is not theirs.",
+    "Shoelace shortage? Experts say: try velcro."
+  ]
+}

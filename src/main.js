@@ -1,12 +1,17 @@
-// Screen code: map drawing, bubbles, panels and the game loop.
-import { DATA } from "./data.js";
+// Screen code: map drawing, bubbles, panels, sound and the game loop.
+import { BASE } from "./data.js";
 import { MAP } from "./map-data.js";
-import { newGame, step, buy, collect, mods, worldShare, dailyMoney, canBuy, growthRate } from "./engine.js";
+import { Sound } from "./sound.js";
+import {
+  buildData, newGame, step, buy, collect, mods, worldShare, dailyMoney, canBuy,
+  rivalDef, copyName, topRival, isBlocked,
+} from "./engine.js";
 
 const $ = (id) => document.getElementById(id);
-const SAVE_KEY = "hypeinc.save.v1";
+const SAVE_KEY = "hypeinc.save.v2";
 const BEST_KEY = "hypeinc.best.v1";
-const COLORS = ["#ff8a1f", "#ff4f8b", "#22d3ee", "#a3e635", "#ff6b4a", "#60a5fa"];
+// Brand colours from the art workstream. Each passes 4.5:1 with dark text.
+const COLORS = ["#FF6A3D", "#FF4FA3", "#2EE6C5", "#B8F23A", "#4CC9FF"];
 
 const store = {
   get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
@@ -14,12 +19,17 @@ const store = {
   del(k) { try { localStorage.removeItem(k); } catch { /* no storage */ } },
 };
 
+const sound = new Sound({ base: "./sound/" });
+sound.load().catch(() => {});
+sound.music("music_menu");
+const sfx = (name, opts) => { try { sound.play(name, opts); } catch { /* sound is optional */ } };
+
 // ---------- Map geometry ----------
 const W = MAP.cols + 1, H = MAP.rows;
 const N = MAP.dots.length / 3;
 const dx = new Float32Array(N), dy = new Float32Array(N), dreg = new Uint8Array(N);
 const grid = new Int32Array(MAP.cols * MAP.rows).fill(-1);
-const regionDots = DATA.regions.map(() => []);
+const regionDots = BASE.regions.map(() => []);
 for (let i = 0; i < N; i++) {
   const c = MAP.dots[i * 3], r = MAP.dots[i * 3 + 1], g = MAP.dots[i * 3 + 2];
   dx[i] = c + (r % 2 ? 0.5 : 0) + 0.5;
@@ -61,6 +71,7 @@ function dotOrder(g, from, salt) {
 }
 
 // ---------- State ----------
+let data = buildData(BASE, BASE.products[0].id, "kitchen");
 let state = null;
 let mode = "title"; // title, pick, play, over
 let speed = 1, lastSpeed = 1;
@@ -68,9 +79,18 @@ let selected = -1;
 let acc = 0;
 let bubbles = [];
 const news = [];
-let pickedColor = COLORS[0];
+const pick = { product: BASE.products[0].id, scenario: "kitchen", color: COLORS[0] };
 let tab = "product", chosenUpgrade = null;
 let firstBubbleHint = true;
+let lastMilestone = 0;
+
+// ---------- Icons ----------
+const SPRITE = new Set([...document.querySelectorAll("symbol[id^='i-']")].map((s) => s.id.slice(2)));
+function icon(id, fallback = "") {
+  return SPRITE.has(id) ? `<svg class="icon" aria-hidden="true"><use href="#i-${id}"/></svg>` : `<span aria-hidden="true">${fallback}</span>`;
+}
+// The art set has icons for the soda upgrades. Other products use their emoji.
+const upgradeIcon = (u) => (data.product.id === "soda" ? icon(u.id, u.icon) : `<span aria-hidden="true">${u.icon}</span>`);
 
 // ---------- Canvas ----------
 const canvas = $("map"), ctx = canvas.getContext("2d");
@@ -82,7 +102,7 @@ let colors = {};
 function readColors() {
   const cs = getComputedStyle(document.documentElement);
   const v = (n) => cs.getPropertyValue(n).trim();
-  colors = { land: v("--land"), landHi: v("--land-hi"), brand: v("--brand"), rival: v("--rival") };
+  colors = { land: v("--land"), landHi: v("--land-hi"), brand: v("--brand"), glow: v("--brand-glow") };
   dirty = true;
 }
 
@@ -112,61 +132,58 @@ function centerOn(g) {
   dirty = true;
 }
 
+// Map look from the art workstream: unlit land small, brand dots big with a glow,
+// rival dots as rings in the rival's colour.
 function draw() {
   dirty = false;
   ctx.clearRect(0, 0, view.w, view.h);
-  const owner = new Uint8Array(N); // 0 land, 1 mine, 2 rival
+  const owner = new Int8Array(N); // 0 land, 1 mine, 2 + rival index
   if (state) {
-    DATA.regions.forEach((_, g) => {
+    const salt = state.seed % 1000;
+    const vis = (x) => Math.pow(Math.max(0, x), 0.75); // small shares show a bit bigger
+    data.regions.forEach((_, g) => {
       const s = state.regions[g];
-      const list = regionDots[g];
-      const n = list.length;
-      // Small shares show a bit bigger on the map, so the first days do not look empty.
-      const vis = (x) => Math.pow(Math.max(0, x), 0.75);
-      let mine = s.reached ? Math.max(1, Math.round(vis(s.f) * n)) : 0;
+      const list = regionDots[g], n = list.length;
+      const mine = s.reached ? Math.max(1, Math.round(vis(s.f) * n)) : 0;
       let theirs = s.rivalIn ? Math.max(1, Math.round(vis(s.r) * n)) : 0;
-      if (mine) { const o = dotOrder(g, s.entry, state.seed % 1000); for (let k = 0; k < mine && k < n; k++) owner[o[k]] = 1; }
+      if (mine) { const o = dotOrder(g, s.entry, salt); for (let k = 0; k < mine && k < n; k++) owner[o[k]] = 1; }
       if (theirs) {
-        const o = dotOrder(g, s.rivalEntry === g ? -1 : s.rivalEntry, (state.seed % 1000) + 500);
-        for (let k = 0; k < n && theirs > 0; k++) { if (owner[o[k]] === 0) { owner[o[k]] = 2; theirs--; } }
+        const ri = 2 + Math.max(0, state.rivals.findIndex((r) => r.id === s.rivalOwner));
+        const o = dotOrder(g, s.rivalEntry === g ? -1 : s.rivalEntry, salt + 500);
+        for (let k = 0; k < n && theirs > 0; k++) { if (owner[o[k]] === 0) { owner[o[k]] = ri; theirs--; } }
       }
     });
   }
-  const s = view.s, rad = Math.max(0.9, s * 0.36);
+  const s = view.s;
   const shifts = view.wrap ? [-W * s, 0, W * s] : [0];
-  const fills = [colors.land, colors.brand, colors.rival];
-  for (let pass = 0; pass < 3; pass++) {
-    ctx.fillStyle = fills[pass];
-    if (pass === 1) { ctx.shadowColor = colors.brand; ctx.shadowBlur = s * 0.8; }
-    else if (pass === 2) { ctx.shadowColor = colors.rival; ctx.shadowBlur = s * 0.6; }
-    else ctx.shadowBlur = 0;
+  const dots = (test, rad, ring) => {
     for (const sh of shifts) {
       const base = view.ox + sh;
       if (base > view.w || base + W * s < 0) continue;
       ctx.beginPath();
       for (let i = 0; i < N; i++) {
-        if (owner[i] !== pass) continue;
-        if (pass === 0 && dreg[i] === selected) continue;
+        if (!test(i)) continue;
         const x = base + dx[i] * s, y = view.oy + dy[i] * s;
         ctx.moveTo(x + rad, y);
         ctx.arc(x, y, rad, 0, Math.PI * 2);
       }
-      ctx.fill();
+      if (ring) ctx.stroke(); else ctx.fill();
     }
-  }
+  };
   ctx.shadowBlur = 0;
-  if (selected >= 0) {
-    ctx.fillStyle = colors.landHi;
-    for (const sh of shifts) {
-      ctx.beginPath();
-      for (const i of regionDots[selected]) {
-        if (owner[i] !== 0) continue;
-        const x = view.ox + sh + dx[i] * s, y = view.oy + dy[i] * s;
-        ctx.moveTo(x + rad, y);
-        ctx.arc(x, y, rad, 0, Math.PI * 2);
-      }
-      ctx.fill();
-    }
+  ctx.fillStyle = colors.land;
+  dots((i) => owner[i] === 0 && dreg[i] !== selected, Math.max(0.8, s * 0.3));
+  if (selected >= 0) { ctx.fillStyle = colors.landHi; dots((i) => owner[i] === 0 && dreg[i] === selected, Math.max(0.8, s * 0.34)); }
+  if (state) {
+    state.rivals.forEach((r, k) => {
+      ctx.strokeStyle = rivalDef(data, r.id).color;
+      ctx.lineWidth = Math.max(0.7, s * 0.16);
+      dots((i) => owner[i] === k + 2, Math.max(0.8, s * 0.3), true);
+    });
+    ctx.fillStyle = colors.brand;
+    if (view.w > 500) { ctx.shadowColor = colors.glow; ctx.shadowBlur = s * 0.9; }
+    dots((i) => owner[i] === 1, Math.max(1, s * 0.42));
+    ctx.shadowBlur = 0;
   }
   placeBubbles();
 }
@@ -223,6 +240,7 @@ stage.addEventListener("pointerup", (e) => {
   $("newslog").hidden = true;
   const r = stage.getBoundingClientRect();
   const i = dotAt(e.clientX - r.left, e.clientY - r.top);
+  if (i >= 0) sfx("ui_tap");
   selectRegion(i >= 0 ? dreg[i] : -1);
 });
 stage.addEventListener("pointercancel", () => { drag = null; stage.classList.remove("dragging"); });
@@ -238,20 +256,23 @@ const pips = (v, bad) => `<span class="pips${bad ? " bad" : ""}">${[0, 1, 2, 3, 
 function renderRegionCard() {
   const card = $("regioncard");
   if (selected < 0) { card.hidden = true; return; }
-  const d = DATA.regions[selected];
+  const d = data.regions[selected];
   let status = "";
   if (state) {
     const s = state.regions[selected];
-    if (!s.reached) status = `<div class="sub">${esc(state.brand)} is not here yet.</div>`;
+    const notes = [];
+    if (isBlocked(state, selected)) notes.push("Blocked by a rival deal");
+    if (!s.reached) status = `<div class="sub">${esc(state.brand)} is not here yet.${notes.length ? " " + notes.join(" · ") : ""}</div>`;
     else {
-      const notes = [];
-      if (s.freezeDays > 0) notes.push(`Supply problem: ${s.freezeDays} days`);
+      if (s.freezeDays > 0) notes.push(`No growth for ${s.freezeDays} days`);
       if (s.boost > 1) notes.push(`Boost x${s.boost} for ${s.boostDays} days`);
-      status = `<div class="sub">You <b style="color:var(--brand)">${pct(s.f)}</b> · ${esc(DATA.rival.name)} <b style="color:var(--rival)">${pct(s.r)}</b>${notes.length ? " · " + notes.join(" · ") : ""}</div>`;
+      if (s.boost < 1) notes.push(`Slowed x${s.boost} for ${s.boostDays} days`);
+      const rv = s.rivalOwner ? rivalDef(data, s.rivalOwner) : null;
+      status = `<div class="sub">You <b style="color:var(--brand)">${pct(s.f)}</b>${rv ? ` · ${esc(rv.name)} <b style="color:${rv.color}">${pct(s.r)}</b>` : ""}${notes.length ? " · " + notes.join(" · ") : ""}</div>`;
     }
   }
   card.innerHTML = `
-    <button class="close" type="button" aria-label="Close">&#10005;</button>
+    <button class="close" type="button" aria-label="Close">${icon("close", "✕")}</button>
     <h3>${esc(d.name)}</h3>
     <div class="sub">${fmtPeople(d.pop)} people</div>
     ${status}
@@ -263,20 +284,19 @@ function renderRegionCard() {
     </div>
     ${mode === "pick" ? `<button class="btn launch" type="button" id="launchbtn">Launch in ${esc(d.name)}</button>` : ""}`;
   card.hidden = false;
-  card.querySelector(".close").onclick = () => selectRegion(-1);
+  card.querySelector(".close").onclick = () => { sfx("ui_back"); selectRegion(-1); };
   const lb = $("launchbtn");
   if (lb) lb.onclick = () => launch(selected);
 }
 
 // ---------- Bubbles ----------
-function spawnBubble(region, value, type) {
+function spawnBubble(region, value, type, rivalId) {
   if (bubbles.length > 14) return;
   const s = state.regions[region];
   const list = regionDots[region];
   let i;
-  if (type === "spy") {
-    i = list[Math.floor(Math.random() * list.length)];
-  } else {
+  if (type === "spy") i = list[Math.floor(Math.random() * list.length)];
+  else {
     const o = dotOrder(region, s.entry, state.seed % 1000);
     const lit = Math.max(1, Math.min(list.length, Math.round(Math.pow(s.f, 0.75) * list.length)));
     i = o[Math.floor(Math.random() * lit)];
@@ -284,10 +304,18 @@ function spawnBubble(region, value, type) {
   const el = document.createElement("button");
   el.type = "button";
   el.className = "bubble" + (type === "spy" ? " spy" : "");
-  el.textContent = type === "spy" ? "SPY" : `+${value}`;
-  if (type === "spy") el.style.fontSize = "11px";
-  el.setAttribute("aria-label", type === "spy" ? "Catch the MegaCorp spy" : `Collect ${value} Hype`);
-  const b = { el, dot: i, value, type, age: 0, life: type === "spy" ? DATA.rival.spyLifeMs : DATA.balance.bubbleLifeMs };
+  let life = data.balance.bubbleLifeMs;
+  if (type === "spy") {
+    const def = rivalDef(data, rivalId);
+    el.style.setProperty("--rc", def.color);
+    el.innerHTML = icon("spy", "SPY");
+    el.setAttribute("aria-label", `Catch the ${def.name} spy`);
+    life = def.spyLifeMs;
+  } else {
+    el.textContent = `+${value}`;
+    el.setAttribute("aria-label", `Collect ${value} Hype`);
+  }
+  const b = { el, dot: i, value, type, rival: rivalId, age: 0, life };
   el.addEventListener("pointerdown", (e) => { e.stopPropagation(); pop(b); });
   $("bubbles").appendChild(el);
   bubbles.push(b);
@@ -304,14 +332,17 @@ function placeBubbles() { bubbles.forEach(placeBubble); }
 function pop(b, auto = false) {
   if (b.done) return;
   b.done = true;
-  if (b.type === "spy") collect(state, { type: "spy", setback: DATA.rival.spySetback });
-  else collect(state, { type: "bubble", value: b.value });
+  if (b.type === "spy") { collect(state, data, { type: "spy", rival: b.rival }); sfx("spy_caught"); }
+  else {
+    collect(state, data, { type: "bubble", value: b.value });
+    if (auto) sfx("coin", { volume: 0.6, pitchVariance: 0.06 }); else sfx("bubble_pop", { pitchVariance: 0.12 });
+  }
   firstBubbleHint = false;
   if ($("banner").dataset.hint === "bubble") hideBanner();
   b.el.classList.add("gone");
   const f = document.createElement("div");
   f.className = "floater" + (b.type === "spy" ? " spy" : "");
-  f.textContent = b.type === "spy" ? `-${DATA.rival.spySetback}%` : `+${b.value}`;
+  f.textContent = b.type === "spy" ? `-${rivalDef(data, b.rival).spySetback}%` : `+${b.value}`;
   f.style.left = b.el.style.left; f.style.top = b.el.style.top;
   if (auto) f.style.opacity = "0.7";
   $("bubbles").appendChild(f);
@@ -340,12 +371,26 @@ function fmtPeople(m) {
   return `${(m / 1000).toFixed(1)} billion`;
 }
 
+function buildRivalBars() {
+  const box = $("rivalbox");
+  box.classList.toggle("many", state.rivals.length > 1);
+  box.innerHTML = state.rivals.map((r) => {
+    const def = rivalDef(data, r.id);
+    return `<div class="rival" id="rv-${r.id}" style="--rc:${def.color}">
+      <div class="rival-top"><span><b>${esc(copyName(def, state.brand))}</b> <span class="txt"></span></span><span class="pct"></span></div>
+      <div class="meter"><div class="copy"></div></div></div>`;
+  }).join("");
+}
+
 function updateHud() {
   if (!state) return;
-  const ws = worldShare(state, DATA);
-  const money = dailyMoney(state, DATA);
+  const ws = worldShare(state, data);
+  const money = dailyMoney(state, data);
+  const goal = data.balance.winShare;
   $("day").textContent = `Day ${state.day}`;
   $("sharepct").textContent = pct(ws.share);
+  $("goalpct").textContent = `${Math.round(goal * 100)}%`;
+  $("goalmark").style.left = `${goal * 100}%`;
   $("sharebar").style.width = `${Math.min(100, ws.share * 100)}%`;
   $("rivalsharebar").style.width = `${Math.min(100, ws.rivalShare * 100)}%`;
   $("cash").textContent = fmtCash(state.cash);
@@ -355,13 +400,17 @@ function updateHud() {
   $("cashstat").classList.toggle("low", money.net < 0 && state.cash < -money.net * 20);
   $("hp").textContent = state.hp;
   $("upbadge").textContent = state.hp;
-  const affordable = DATA.upgrades.some((u) => canBuy(state, DATA, u) && state.hp >= u.cost);
+  const affordable = data.upgrades.some((u) => canBuy(state, data, u) && state.hp >= u.cost);
   $("upbtn").classList.toggle("ready", affordable);
-  const p = state.rival.progress;
-  $("copybar").style.width = `${p}%`;
-  $("copypct").textContent = state.rival.noticed ? `${Math.floor(p)}%` : "";
-  $("rivalstate").textContent = state.rival.noticed ? `copy by ${DATA.rival.name}, ready:` : `${DATA.rival.name} has not noticed you yet`;
-  $("rivalbox").classList.toggle("danger", p >= 75);
+  for (const r of state.rivals) {
+    const el = $(`rv-${r.id}`);
+    if (!el) continue;
+    const def = rivalDef(data, r.id);
+    el.querySelector(".copy").style.width = `${r.progress}%`;
+    el.querySelector(".pct").textContent = r.noticed ? `${Math.floor(r.progress)}%` : "";
+    el.querySelector(".txt").textContent = r.noticed ? `copy by ${def.name}` : `${def.name} has not noticed you yet`;
+    el.classList.toggle("danger", r.progress >= 75);
+  }
   document.querySelectorAll("#priceseg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.price === state.price)));
 }
 
@@ -393,6 +442,7 @@ function renderNewsLog() {
 $("ticker").onclick = () => {
   const log = $("newslog");
   log.hidden = !log.hidden;
+  sfx(log.hidden ? "ui_close" : "ui_open");
   if (!log.hidden) renderNewsLog();
 };
 
@@ -404,49 +454,113 @@ function showBanner(text, hint = "") {
 }
 function hideBanner() { $("banner").hidden = true; $("banner").dataset.hint = ""; }
 
+// ---------- Sound button ----------
+function renderMute() {
+  const m = sound.muted;
+  const b = $("mutebtn");
+  b.setAttribute("aria-pressed", String(m));
+  b.setAttribute("aria-label", m ? "Sound on" : "Sound off");
+  b.innerHTML = `<span aria-hidden="true">${m ? "🔇" : "🔊"}</span>`;
+}
+$("mutebtn").onclick = () => { sound.toggleMute(); renderMute(); };
+
 // ---------- Overlays ----------
 const overlays = ["start", "upgrades", "alert", "end"];
 function modalOpen() { return overlays.some((id) => !$(id).hidden); }
 
-function showAlert(title, text) {
+function showAlert(title, text, tip = "") {
   $("alerttitle").textContent = title;
   $("alerttext").textContent = text;
+  $("alerttip").textContent = tip;
+  $("alerttip").hidden = !tip;
   $("alert").hidden = false;
   $("alertok").focus();
 }
-$("alertok").onclick = () => { $("alert").hidden = true; };
+$("alertok").onclick = () => { sfx("ui_close"); $("alert").hidden = true; };
 
 // ---------- Start ----------
+function best() { return { wins: 0, won: [], ...(store.get(BEST_KEY) || {}) }; }
+
+function unlocked(sc) {
+  const u = sc.unlock;
+  if (!u) return true;
+  const b = best();
+  if (u.wins) return b.wins >= u.wins;
+  if (u.scenarioWon) return b.won.includes(u.scenarioWon);
+  return true;
+}
+function unlockText(sc) {
+  const u = sc.unlock;
+  if (u.wins) return `Win ${u.wins} game${u.wins > 1 ? "s" : ""} to unlock.`;
+  const other = BASE.scenarios.find((s) => s.id === u.scenarioWon);
+  return `Win ${other ? other.name : "another challenge"} to unlock.`;
+}
+
 function setBrandColor(c) {
-  pickedColor = c;
-  document.documentElement.style.setProperty("--brand", c);
+  pick.color = c;
+  const root = document.documentElement.style;
+  root.setProperty("--brand", c);
+  root.setProperty("--brand-glow", `${c}73`);
   document.querySelectorAll(".swatch").forEach((s) => s.setAttribute("aria-pressed", String(s.dataset.c === c)));
   readColors();
+}
+
+function renderStart() {
+  const p = BASE.products.find((x) => x.id === pick.product);
+  $("products").innerHTML = BASE.products.map((x) =>
+    `<button type="button" class="prod" data-p="${x.id}" aria-pressed="${x.id === pick.product}">${icon(x.id, "•")}<span>${esc(x.name)}</span></button>`).join("");
+  $("products").querySelectorAll(".prod").forEach((b) => (b.onclick = () => {
+    sfx("ui_tap");
+    const old = BASE.products.find((x) => x.id === pick.product);
+    pick.product = b.dataset.p;
+    const input = $("brandinput");
+    if (!input.value.trim() || input.value === old.defaultBrand) input.value = BASE.products.find((x) => x.id === pick.product).defaultBrand;
+    renderStart();
+  }));
+  $("productinfo").innerHTML = `<div>${esc(p.pitch)}</div>
+    <div class="pros">${(p.strengths || []).map((t) => `<span>+ ${esc(t)}</span>`).join("")}</div>
+    <div class="cons">${(p.weakSpots || []).map((t) => `<span>− ${esc(t)}</span>`).join("")}</div>`;
+  $("scenarios").innerHTML = BASE.scenarios.map((sc) => {
+    const open = unlocked(sc);
+    return `<button type="button" class="scen" data-s="${sc.id}" aria-pressed="${sc.id === pick.scenario}" ${open ? "" : "disabled"}>
+      <span class="em" aria-hidden="true">${open ? sc.icon : "🔒"}</span><b>${esc(sc.name)}</b>
+      <span class="diff" aria-label="Difficulty ${sc.difficulty} of 3">${[1, 2, 3].map((k) => `<i class="${k <= sc.difficulty ? "on" : ""}"></i>`).join("")}</span>
+      <small>${open ? esc(sc.pitch) : esc(unlockText(sc))}</small></button>`;
+  }).join("");
+  $("scenarios").querySelectorAll(".scen").forEach((b) => (b.onclick = () => { sfx("ui_tap"); pick.scenario = b.dataset.s; renderStart(); }));
+  const sc = BASE.scenarios.find((x) => x.id === pick.scenario);
+  $("newbtn").textContent = sc.start ? `Start ${sc.name}` : "Choose where to launch";
 }
 
 function buildStart() {
   const sw = $("swatches");
   sw.innerHTML = COLORS.map((c) => `<button type="button" class="swatch" data-c="${c}" style="background:${c};color:${c}" aria-label="Colour ${c}"></button>`).join("");
-  sw.querySelectorAll(".swatch").forEach((b) => (b.onclick = () => setBrandColor(b.dataset.c)));
-  setBrandColor(pickedColor);
-  $("pitch").textContent = DATA.products[0].pitch;
-  $("brandinput").value = DATA.products[0].defaultBrand;
+  sw.querySelectorAll(".swatch").forEach((b) => (b.onclick = () => { sfx("ui_tap"); setBrandColor(b.dataset.c); }));
+  setBrandColor(pick.color);
+  if (!BASE.scenarios.find((s) => s.id === pick.scenario && unlocked(s))) pick.scenario = "kitchen";
+  $("brandinput").value = BASE.products.find((x) => x.id === pick.product).defaultBrand;
+  renderStart();
   const save = store.get(SAVE_KEY);
   const cont = $("continuebtn");
-  if (save && save.status === "playing") {
+  if (save && save.status === "playing" && save.version === 2) {
     cont.hidden = false;
     cont.textContent = `Continue ${save.brand} (day ${save.day})`;
   } else cont.hidden = true;
+  sound.music("music_menu");
 }
 
 $("newbtn").onclick = () => {
-  const name = $("brandinput").value.trim().slice(0, 14) || DATA.products[0].defaultBrand;
+  sfx("ui_tap");
+  const p = BASE.products.find((x) => x.id === pick.product);
+  const name = $("brandinput").value.trim().slice(0, 14) || p.defaultBrand;
   $("brandinput").value = name;
   $("brandname").textContent = name;
+  data = buildData(BASE, pick.product, pick.scenario);
   $("start").hidden = true;
-  mode = "pick";
   state = null;
   clearBubbles();
+  if (data.scenario.start) { launch(data.regions.findIndex((g) => g.id === data.scenario.start)); return; }
+  mode = "pick";
   showBanner(`Tap a region to launch ${name}`);
   selectRegion(-1);
 };
@@ -454,33 +568,41 @@ $("newbtn").onclick = () => {
 $("continuebtn").onclick = () => {
   const save = store.get(SAVE_KEY);
   if (!save) return;
+  sfx("ui_tap");
+  data = buildData(BASE, save.product, save.scenario);
   state = save;
   setBrandColor(state.color);
   $("brandname").textContent = state.brand;
   $("start").hidden = true;
   mode = "play";
   news.length = 0;
+  buildRivalBars();
   pushNews({ kind: "good", text: `Welcome back. ${state.brand} is waiting for you.` });
   setSpeed(0);
   updateHud();
   centerOn(state.regions.findIndex((r) => r.reached));
+  sound.music("music_game");
   dirty = true;
 };
 
 function launch(g) {
   const brand = $("brandname").textContent;
-  state = newGame(DATA, { brand, color: pickedColor, start: g, seed: Math.floor(Math.random() * 1e9) });
+  state = newGame(data, { brand, color: pick.color, start: g, seed: Math.floor(Math.random() * 1e9) });
   mode = "play";
   firstBubbleHint = true;
+  lastMilestone = 0;
   news.length = 0;
   selectRegion(-1);
   centerOn(g);
   hideBanner();
-  pushNews({ kind: "good", text: `${brand} goes on sale in ${DATA.regions[g].name}. Day one!` });
+  buildRivalBars();
+  pushNews({ kind: "good", text: `${brand} goes on sale in ${data.regions[g].name}. Day one!` });
   setSpeed(1);
   acc = 0;
   updateHud();
   save();
+  sound.music("music_game");
+  if (data.scenario.id !== "kitchen" && data.scenario.tip) showAlert(data.scenario.name, data.scenario.pitch, data.scenario.tip);
   dirty = true;
 }
 
@@ -489,36 +611,37 @@ function save() { if (state && state.status === "playing") store.set(SAVE_KEY, s
 // ---------- Upgrades ----------
 function openUpgrades() {
   if (mode !== "play") return;
+  sfx("ui_open");
   $("upgrades").hidden = false;
   renderUpgrades();
 }
-function closeUpgrades() { $("upgrades").hidden = true; updateHud(); }
+function closeUpgrades() { sfx("ui_close"); $("upgrades").hidden = true; updateHud(); }
 $("upbtn").onclick = openUpgrades;
 $("upclose").onclick = closeUpgrades;
 $("upgrades").addEventListener("pointerdown", (e) => { if (e.target.id === "upgrades") closeUpgrades(); });
 
 function renderUpgrades() {
   $("uphp").textContent = `${state.hp} Hype`;
-  $("tabs").innerHTML = DATA.trees.map((t) => {
-    const owned = DATA.upgrades.filter((u) => u.tree === t.id && state.owned[u.id]).length;
+  $("tabs").innerHTML = data.trees.map((t) => {
+    const owned = data.upgrades.filter((u) => u.tree === t.id && state.owned[u.id]).length;
     return `<button type="button" role="tab" data-t="${t.id}" aria-selected="${t.id === tab}">${esc(t.name)} ${owned}/5</button>`;
   }).join("");
-  $("tabs").querySelectorAll("button").forEach((b) => (b.onclick = () => { tab = b.dataset.t; chosenUpgrade = null; renderUpgrades(); }));
-  const tree = DATA.trees.find((t) => t.id === tab);
+  $("tabs").querySelectorAll("button").forEach((b) => (b.onclick = () => { sfx("ui_tap"); tab = b.dataset.t; chosenUpgrade = null; renderUpgrades(); }));
+  const tree = data.trees.find((t) => t.id === tab);
   $("blurb").textContent = tree.blurb;
-  const list = DATA.upgrades.filter((u) => u.tree === tab);
+  const list = data.upgrades.filter((u) => u.tree === tab);
   if (!chosenUpgrade || !list.find((u) => u.id === chosenUpgrade)) {
-    chosenUpgrade = (list.find((u) => canBuy(state, DATA, u)) || list[0]).id;
+    chosenUpgrade = (list.find((u) => canBuy(state, data, u)) || list[0]).id;
   }
   const el = $("tree");
   el.innerHTML = `<svg aria-hidden="true"></svg>` + list.map((u) => {
     const owned = state.owned[u.id];
-    const open = canBuy(state, DATA, u);
+    const open = canBuy(state, data, u);
     const cls = owned ? "owned" : open ? (state.hp >= u.cost ? "afford" : "") : "locked";
     return `<button type="button" class="node ${cls}" data-u="${u.id}" aria-pressed="${u.id === chosenUpgrade}" style="grid-column:${u.pos[0] + 1};grid-row:${u.pos[1] + 1}">
-      <span class="ic">${u.icon}</span><span class="nm">${esc(u.name)}</span><span class="cost">${u.cost}</span></button>`;
+      <span class="ic">${upgradeIcon(u)}</span><span class="nm">${esc(u.name)}</span><span class="cost">${u.cost}</span></button>`;
   }).join("");
-  el.querySelectorAll(".node").forEach((b) => (b.onclick = () => { chosenUpgrade = b.dataset.u; renderUpgrades(); }));
+  el.querySelectorAll(".node").forEach((b) => (b.onclick = () => { sfx("ui_tap"); chosenUpgrade = b.dataset.u; renderUpgrades(); }));
   requestAnimationFrame(() => drawTreeLines(list));
   renderDetail();
 }
@@ -549,10 +672,10 @@ function drawTreeLines(list) {
 }
 
 function renderDetail() {
-  const u = DATA.upgrades.find((x) => x.id === chosenUpgrade);
+  const u = data.upgrades.find((x) => x.id === chosenUpgrade);
   const owned = state.owned[u.id];
-  const open = canBuy(state, DATA, u);
-  const name = (id) => DATA.upgrades.find((x) => x.id === id).name;
+  const open = canBuy(state, data, u);
+  const name = (id) => data.upgrades.find((x) => x.id === id).name;
   let why = "";
   if (!owned && !open) {
     const miss = u.requires.filter((id) => !state.owned[id]).map(name);
@@ -561,16 +684,19 @@ function renderDetail() {
   } else if (!owned && state.hp < u.cost) why = `You need ${u.cost - state.hp} more Hype. Tap the yellow bubbles on the map.`;
   const upkeep = u.upkeep ? `<span class="down">Costs ${fmtCash(u.upkeep)} per day</span>` : `<span>No daily cost</span>`;
   $("detail").innerHTML = `
-    <h3><span>${u.icon}</span>${esc(u.name)}</h3>
+    <h3>${upgradeIcon(u)}${esc(u.name)}</h3>
     <p>${esc(u.desc)}</p>
     <div class="facts"><span>${u.cost} Hype</span>${upkeep}</div>
     ${why ? `<div class="why">${esc(why)}</div>` : ""}
-    <button class="btn" type="button" id="buybtn" ${owned || !open || state.hp < u.cost ? "disabled" : ""}>${owned ? "Owned" : `Buy for ${u.cost} Hype`}</button>`;
-  const bb = $("buybtn");
-  bb.onclick = () => {
-    if (!buy(state, DATA, u.id)) return;
+    <button class="btn${!owned && (!open || state.hp < u.cost) ? " dim" : ""}" type="button" id="buybtn" ${owned ? "disabled" : ""}>${owned ? "Owned" : `Buy for ${u.cost} Hype`}</button>`;
+  $("buybtn").onclick = () => {
+    if (!buy(state, data, u.id)) { sfx("denied"); return; }
+    sfx("upgrade_buy");
     pushNews({ kind: "good", text: `${state.brand} gets ${u.name}!` });
-    if (u.effects.setback) pushNews({ kind: "good", text: `The lawyers win. ${DATA.rival.copy} loses ${u.effects.setback}% progress.` });
+    if (u.effects.setback) {
+      const def = rivalDef(data, topRival(state).id);
+      pushNews({ kind: "good", text: `The lawyers win. ${copyName(def, state.brand)} loses ${u.effects.setback}% progress.` });
+    }
     save();
     renderUpgrades();
     updateHud();
@@ -579,11 +705,12 @@ function renderDetail() {
 }
 
 // ---------- Controls ----------
-document.querySelectorAll("#speedseg button").forEach((b) => (b.onclick = () => setSpeed(Number(b.dataset.speed))));
+document.querySelectorAll("#speedseg button").forEach((b) => (b.onclick = () => { sfx("tick"); setSpeed(Number(b.dataset.speed)); }));
 document.querySelectorAll("#priceseg button").forEach((b) => (b.onclick = () => {
   if (!state) return;
+  sfx("tick");
   state.price = b.dataset.price;
-  const p = DATA.balance.prices[state.price];
+  const p = data.balance.prices[state.price];
   pushNews({ kind: "fun", text: `Price set to ${p.label}. Growth x${p.growth}, money per fan x${p.revenue}.` });
   updateHud();
   save();
@@ -608,7 +735,9 @@ function showEnd() {
   clearBubbles();
   store.del(SAVE_KEY);
   const won = state.status === "won";
-  const ws = worldShare(state, DATA);
+  sound.music(null, { fade: 0.4 });
+  sfx(won ? "win" : "lose");
+  const ws = worldShare(state, data);
   $("endcard").className = `card end ${state.status}`;
   $("endtitle").textContent = won ? "You win!" : "Game over";
   $("endtext").textContent = state.reason;
@@ -618,45 +747,67 @@ function showEnd() {
     ["World share", pct(ws.share)],
     ["Fans", fmtPeople(ws.fans)],
     ["Cash", fmtCash(state.cash)],
-    ["Upgrades", `${bought}/${DATA.upgrades.length}`],
+    ["Upgrades", `${bought}/${data.upgrades.length}`],
     ["Spies caught", state.stats.spies],
   ].map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join("");
   let lesson;
-  if (won) lesson = "You grew fast and kept your fans. For a harder run, start in a poor region or play on Premium price.";
+  if (won) lesson = "You grew fast and kept your fans. Try another product or a harder challenge next.";
   else if (state.cash < 0) lesson = "Cash flow matters. Upgrades with a daily cost only pay off once enough fans buy. Start with cheap upgrades and grow first.";
-  else lesson = "Big companies copy good ideas. A Patent, Lawyers and catching spies buy you time. Grow fast once they notice you.";
+  else {
+    const def = rivalDef(data, state.lostTo || topRival(state).id);
+    lesson = def.tips?.[1] || def.tips?.[0] || "Big companies copy good ideas. Defense upgrades and catching spies buy you time.";
+  }
   $("lesson").textContent = lesson;
   const rec = $("record");
   rec.hidden = true;
   if (won) {
-    const best = store.get(BEST_KEY) || {};
-    if (!best.fastest || state.day < best.fastest) {
-      rec.textContent = best.fastest ? `New record! Your old best was ${best.fastest} days.` : "First win! Try to beat this number of days.";
-      rec.hidden = false;
-      store.set(BEST_KEY, { ...best, fastest: state.day });
-    }
+    const b = best();
+    const before = BASE.scenarios.filter(unlocked).length;
+    const msgs = [];
+    if (!b.fastest || state.day < b.fastest) msgs.push(b.fastest ? `New record! Your old best was ${b.fastest} days.` : "First win!");
+    b.fastest = Math.min(b.fastest || Infinity, state.day);
+    b.wins++;
+    if (!b.won.includes(state.scenario)) b.won.push(state.scenario);
+    store.set(BEST_KEY, b);
+    if (BASE.scenarios.filter(unlocked).length > before) msgs.push("You unlocked a new challenge!");
+    if (msgs.length) { rec.textContent = msgs.join(" "); rec.hidden = false; }
   }
   $("end").hidden = false;
 }
 $("againbtn").onclick = () => {
+  sfx("ui_tap");
   $("end").hidden = true;
   state = null;
   mode = "title";
   selected = -1;
   dirty = true;
   renderRegionCard();
+  $("rivalbox").innerHTML = "";
   buildStart();
   $("start").hidden = false;
 };
 
 // ---------- Loop ----------
 function tick() {
-  for (const it of step(state, DATA)) {
-    if (it.type === "news") pushNews(it);
+  for (const it of step(state, data)) {
+    if (it.type === "news") {
+      pushNews(it);
+      if (it.cash > 0) sfx("cash_in");
+      else if (it.kind === "bad") sfx("news_bad");
+      else if (it.kind === "good" && !it.text.includes("arrives in")) sfx("news_good");
+    } else if (it.type === "reached") sfx("country_reached");
     else if (it.type === "bubble") spawnBubble(it.region, it.value, "hype");
-    else if (it.type === "spy") spawnBubble(it.region, 0, "spy");
-    else if (it.type === "alert") showAlert(`${DATA.rival.name} noticed you!`, it.text);
-    else if (it.type === "end") { updateHud(); dirty = true; setTimeout(showEnd, 600); }
+    else if (it.type === "spy") spawnBubble(it.region, 0, "spy", it.rival);
+    else if (it.type === "alert") {
+      const noticed = it.title.includes("noticed");
+      sfx(noticed ? "rival_alert" : "warning");
+      const def = rivalDef(data, it.rival);
+      showAlert(it.title, it.text, noticed ? def.tips?.[0] || "" : "");
+    } else if (it.type === "end") { updateHud(); dirty = true; setTimeout(showEnd, 600); }
+  }
+  const share = worldShare(state, data).share;
+  for (const m of [0.1, 0.25, 0.4]) {
+    if (share >= m && lastMilestone < m) { lastMilestone = m; sfx("milestone"); pushNews({ kind: "good", text: `${state.brand} reaches ${m * 100}% of the world market!` }); }
   }
   if (firstBubbleHint && bubbles.some((b) => b.type === "hype") && state.day > 2) showBanner("Tap the yellow bubbles to get Hype!", "bubble");
   if (state.day % 5 === 0) save();
@@ -672,13 +823,13 @@ function frame(now) {
   const running = mode === "play" && state && state.status === "playing" && speed > 0 && !modalOpen();
   if (running) {
     acc += dt;
-    const len = DATA.balance.dayMs[speed];
+    const len = data.balance.dayMs[speed];
     let n = 0;
     while (acc >= len && n < 4 && state.status === "playing") { acc -= len; tick(); n++; }
-    const auto = mods(state, DATA).autoCollect > 0;
+    const auto = mods(state, data).autoCollect > 0;
     for (const b of [...bubbles]) {
       b.age += dt;
-      if (auto && b.type === "hype" && b.age > DATA.balance.autoCollectMs) pop(b, true);
+      if (auto && b.type === "hype" && b.age > data.balance.autoCollectMs) pop(b, true);
       else if (b.age > b.life) { b.done = true; b.el.classList.add("gone"); setTimeout(() => b.el.remove(), 300); bubbles = bubbles.filter((x) => x !== b); }
       else b.el.classList.toggle("fading", b.age > b.life * 0.75);
     }
@@ -691,9 +842,9 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) save(
 window.addEventListener("resize", resize);
 new ResizeObserver(resize).observe(stage);
 
-// For debugging in the console.
+// For tests and debugging in the console.
 window.hype = {
-  get state() { return state; }, DATA, growthRate,
+  get state() { return state; }, get data() { return data; }, BASE,
   // Screen point (relative to the page) of a dot near the middle of region g.
   point(g) {
     centerOn(g);
@@ -706,6 +857,7 @@ window.hype = {
 };
 
 readColors();
+renderMute();
 buildStart();
 setSpeed(1);
 resize();

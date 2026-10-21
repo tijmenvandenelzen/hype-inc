@@ -1,23 +1,37 @@
 /* Layout: one screen. HUD on top, the world map fills the middle, controls at the bottom.
    Panels (start, upgrades, end) slide over the map and pause the game. */
+@font-face {
+  font-family: "Bungee";
+  src: url("fonts/Bungee-latin.woff2") format("woff2");
+  font-weight: 400; font-display: swap;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("fonts/BricolageGrotesque-latin.woff2") format("woff2");
+  font-weight: 200 800; font-stretch: 75% 100%; font-display: swap;
+}
 :root {
-  --ocean: #0a1424;
-  --ocean-glow: #10223a;
-  --land: #2a3c56;
-  --land-hi: #4a6488;
-  --panel: #111f35;
-  --panel-2: #172a46;
-  --line: #263b5a;
-  --ink: #eef3fb;
-  --muted: #8fa3bf;
-  --brand: #ff8a1f;
-  --rival: #a78bfa;
-  --hype: #ffd23f;
-  --cash: #4ade80;
-  --danger: #ff5c6c;
+  /* From the art workstream (tokens.css v1): night-time billboard, one dark look. */
+  --ocean: #0A1022;
+  --ocean-glow: #121c3a;
+  --land: #26304F;
+  --land-hi: #46557f;
+  --panel: #121A31;
+  --panel-2: #1A2442;
+  --line: #2B375E;
+  --ink: #F3F5FF;
+  --muted: #98A2C8;
+  --on-color: #0A1022;
+  --brand: #FF6A3D;
+  --brand-glow: rgba(255, 106, 61, 0.45);
+  --rival: #A78BFA;
+  --hype: #FFD23F;
+  --cash: #3DDC84;
+  --danger: #FF4D5E;
   --font-display: "Bungee", "Arial Black", Impact, system-ui, sans-serif;
-  --font-ui: "Rubik", ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-ui: "Bricolage Grotesque", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 14px;
+  --ease-pop: cubic-bezier(.34, 1.56, .64, 1);
   color-scheme: dark;
 }
 
@@ -154,12 +168,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--hype); outl
   border-top: 1px solid var(--line);
   background: rgb(10 20 36 / 0.85);
 }
-.rival { flex: 1 1 220px; min-width: 0; }
-.rival-top { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin-bottom: 4px; color: var(--muted); }
-.rival-top b { color: var(--rival); font-family: var(--font-display); font-weight: 400; font-size: 13px; }
+.rivals { flex: 1 1 220px; min-width: 0; display: grid; gap: 6px; }
+.rival-top { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin-bottom: 3px; color: var(--muted); }
+.rival-top b { color: var(--rc, var(--rival)); font-family: var(--font-display); font-weight: 400; font-size: 13px; }
 .rival-top .pct { font-variant-numeric: tabular-nums; color: var(--ink); }
-.rival .meter .copy { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(-45deg, var(--rival) 0 8px, #8a6cf0 8px 16px); transition: width 0.4s; }
+.rival .meter { height: 8px; }
+.rival .meter .copy { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(-45deg, var(--rc, var(--rival)) 0 8px, transparent 8px 11px); transition: width 0.4s; }
 .rival.danger .meter { box-shadow: 0 0 0 2px var(--danger); }
+.rivals.many .rival-top .txt { display: none; }
 .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
 .seg button { border: 0; background: none; padding: 8px 10px; border-radius: 7px; font-size: 13px; color: var(--muted); min-width: 40px; min-height: 36px; }
@@ -181,13 +197,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--hype); outl
 /* Overlays */
 .overlay {
   position: fixed; inset: 0; z-index: 40;
-  display: grid; place-items: center;
+  display: flex; align-items: flex-start; justify-content: center;
   background: rgb(5 10 20 / 0.72);
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   overflow-y: auto;
 }
 .card {
-  width: min(560px, 100%);
+  width: min(560px, 100%); margin: auto;
   background: var(--panel); border: 1px solid var(--line); border-radius: 20px;
   padding: 24px; box-shadow: 0 20px 60px rgb(0 0 0 / 0.6);
   animation: rise 0.3s ease-out;
@@ -270,7 +286,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--hype); outl
   .endstats { grid-template-columns: repeat(2, 1fr); }
   #bar { gap: 8px 10px; }
   .controls { display: contents; }
-  .rival { order: 1; flex: 1 1 150px; }
   #upbtn { order: 2; padding: 10px 14px; font-size: 14px; }
   .ctl { order: 3; flex: 1 1 40%; }
   .seg-label { display: none; }
@@ -287,4 +302,45 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--hype); outl
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
+
+/* v0.2 additions */
+.icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.seg .icon { width: 18px; height: 18px; }
+.iconbtn { display: grid; place-items: center; color: var(--ink); }
+.iconbtn.small { width: 40px; height: 40px; align-self: center; }
+.iconbtn[aria-pressed="true"] { color: var(--muted); }
+.field > .label, .field > label { color: var(--ink); font-weight: 600; letter-spacing: 0.06em; }
+.products { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.prod { border: 2px solid var(--line); background: var(--ocean); border-radius: 14px; padding: 10px 4px; display: grid; justify-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.prod .icon { width: 28px; height: 28px; color: var(--ink); }
+.prod[aria-pressed="true"] { border-color: var(--brand); color: var(--ink); background: var(--panel-2); }
+.productinfo { font-size: 14px; color: var(--muted); display: grid; gap: 6px; }
+.productinfo .pros, .productinfo .cons { display: flex; flex-wrap: wrap; gap: 6px; }
+.productinfo .pros span, .productinfo .cons span { border-radius: 999px; padding: 3px 10px; font-size: 12px; background: var(--panel-2); }
+.productinfo .pros span { color: var(--cash); }
+.productinfo .cons span { color: #ffb0b8; }
+.scenarios { display: grid; gap: 8px; }
+.scen { text-align: left; border: 2px solid var(--line); background: var(--ocean); border-radius: 14px; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr auto; gap: 2px 12px; align-items: center; }
+.scen .em { font-size: 24px; grid-row: span 2; }
+.scen b { font-size: 15px; }
+.scen small { color: var(--muted); font-size: 12px; grid-column: 2 / 4; }
+.scen .diff { display: flex; gap: 3px; }
+.scen .diff i { width: 8px; height: 8px; border-radius: 50%; background: var(--land); }
+.scen .diff i.on { background: var(--danger); }
+.scen[aria-pressed="true"] { border-color: var(--brand); background: var(--panel-2); }
+.scen:disabled { opacity: 0.5; cursor: default; }
+.howto-box { margin: 4px 0 16px; }
+.howto-box summary { cursor: pointer; color: var(--muted); font-size: 14px; padding: 6px 0; }
+.howto-box .howto { margin: 8px 0 0; }
+.alert .tip { font-size: 14px; color: var(--ink); background: var(--ocean); border-radius: 10px; padding: 10px 12px; }
+.bubble .icon { width: 20px; height: 20px; }
+.bubble.spy { background: radial-gradient(circle at 35% 30%, #fff, var(--rc, var(--rival)) 50%); box-shadow: 0 0 0 3px color-mix(in srgb, var(--rc, var(--rival)) 30%, transparent), 0 0 18px var(--rc, var(--rival)); }
+.node .ic .icon { width: 26px; height: 26px; }
+.node.owned .ic { color: var(--on-color); }
+.detail h3 .icon { width: 24px; height: 24px; }
+@media (max-width: 640px) {
+  .products { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .prod { font-size: 10px; padding: 8px 2px; }
+  .rivals { order: 1; flex: 1 1 150px; }
 }

@@ -1,0 +1,18 @@
+{
+  "_note": "Burger Chain events. Same format as v0.1 events.json, without everyDays (that is in common.json). skipIf ids are from upgrades/burger.json.",
+  "events": [
+    { "id": "bb_critic",     "weight": 2, "target": "reached", "minDay": 20, "text": "A famous food critic in {region} says the {brand} burger is the best in the country.", "effects": { "hp": 1, "boost": { "mult": 1.6, "days": 20 } } },
+    { "id": "bb_lunch",      "weight": 2, "target": "reached", "minDay": 40, "text": "Schools in {region} put {brand} on the lunch menu.", "effects": { "hp": 1, "boost": { "mult": 1.5, "days": 25 } } },
+    { "id": "bb_milkshake",  "weight": 2, "target": "reached", "minDay": 20, "hotOnly": true, "text": "Heatwave in {region}. {brand} milkshakes sell out every day.", "effects": { "boost": { "mult": 1.8, "days": 12 } } },
+    { "id": "bb_inspection", "weight": 2, "target": "none",    "minDay": 30, "text": "Surprise health inspection! A dirty kitchen costs you a $70k fine.", "skipIf": "kitchen", "skipText": "Health inspectors visit {brand}. Your spotless kitchens pass with full marks.", "effects": { "cash": -70 } },
+    { "id": "bb_meat",       "weight": 1, "target": "none",    "minDay": 60, "text": "Meat prices go up everywhere. It costs you $60k.", "skipIf": "veggie", "skipText": "Meat prices go up, but lots of fans order the veggie burger now. {brand} barely notices.", "effects": { "cash": -60 } },
+    { "id": "bb_rent",       "weight": 1, "target": "none",    "minDay": 80, "text": "Rent goes up for every restaurant. You pay $40k.", "effects": { "cash": -40 } }
+  ],
+  "headlines": [
+    "World's biggest burger needs a crane to eat.",
+    "Survey: ketchup or mayo? Nation still divided.",
+    "Seagull steals 1000th fry this summer. Gets a medal.",
+    "Chef puts pineapple on a burger. Internet explodes.",
+    "Man orders 'one of everything'. Still eating."
+  ]
+}

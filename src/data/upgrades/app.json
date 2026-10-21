@@ -1,0 +1,27 @@
+{
+  "_note": "Phone App upgrades. Same format as v0.1 upgrades.json. Weak spots are low money per fan and fans who switch, so Premium Plan and Defense fix them. cloud skips app_crash, testers skips app_bug, privacy skips app_privacy, translate skips app_banned.",
+  "trees": [
+    { "id": "product",  "name": "Product",  "blurb": "Make the app better so more people use it." },
+    { "id": "channels", "name": "Channels", "blurb": "Get the app on more phones." },
+    { "id": "defense",  "name": "Defense",  "blurb": "Keep your users and keep the app running." }
+  ],
+  "upgrades": [
+    { "id": "fast",      "tree": "product", "pos": [1, 0], "icon": "⚡", "name": "Faster App",       "cost": 3,  "upkeep": 0, "requires": [], "desc": "The app opens in a flash. Every user tells more friends.", "effects": { "appeal": 0.25 } },
+    { "id": "filters",   "tree": "product", "pos": [0, 1], "icon": "🌈", "name": "Fun Filters",      "cost": 6,  "upkeep": 0, "requires": ["fast"], "desc": "Silly face filters everyone wants to share. Social media works better.", "effects": { "appeal": 0.15, "social": 0.3 } },
+    { "id": "translate", "tree": "product", "pos": [2, 1], "icon": "🌍", "name": "Translations",     "cost": 7,  "upkeep": 0, "requires": ["fast"], "desc": "The app speaks 40 languages. Hard markets open up, and no country blocks you.", "effects": { "appeal": 0.1, "resist": 0.35 } },
+    { "id": "premium",   "tree": "product", "pos": [0, 2], "icon": "💎", "name": "Premium Plan",     "cost": 12, "upkeep": 1, "requires": ["filters"], "desc": "Extra features for a small monthly fee. Each user earns you much more.", "effects": { "margin": 0.6, "appeal": 0.1 } },
+    { "id": "privacy",   "tree": "product", "pos": [2, 2], "icon": "🔒", "name": "Privacy Mode",     "cost": 10, "upkeep": 0, "requires": ["translate"], "desc": "Users control their own data. People trust you, and data scares do not hurt you.", "effects": { "resist": 0.3, "loyalty": 0.2 } },
+
+    { "id": "share",     "tree": "channels", "pos": [0, 0], "icon": "📱", "name": "Share Button",     "cost": 2,  "upkeep": 0, "requires": [], "desc": "One tap to send the app to a friend. Works best where people are online a lot.", "effects": { "social": 0.6 } },
+    { "id": "invite",    "tree": "channels", "pos": [2, 0], "icon": "🎁", "name": "Invite a Friend",  "cost": 4,  "upkeep": 1, "requires": [], "desc": "Both friends get a free gift. The app jumps to new regions faster.", "effects": { "social": 0.3, "travel": 0.5 } },
+    { "id": "influence", "tree": "channels", "pos": [0, 1], "icon": "🤳", "name": "Influencers",      "cost": 7,  "upkeep": 4, "requires": ["share"], "desc": "Pay creators to use the app on camera. More users and more Hype bubbles.", "effects": { "social": 0.6, "bubbles": 0.5 } },
+    { "id": "storeads",  "tree": "channels", "pos": [2, 1], "icon": "🏆", "name": "App Store Ads",    "cost": 8,  "upkeep": 3, "requires": ["invite"], "desc": "Be the first app people see in the store. Your brand jumps to new regions much faster.", "effects": { "travel": 1.2, "tv": 0.2 } },
+    { "id": "preload",   "tree": "channels", "pos": [1, 2], "icon": "📲", "name": "On Every New Phone", "cost": 14, "upkeep": 7, "requires": [], "requiresAny": ["influence", "storeads"], "desc": "Phone makers put the app on new phones in shops. Growth goes up everywhere, but it costs a lot every day.", "effects": { "shops": 0.6, "tv": 0.5 } },
+
+    { "id": "streaks",   "tree": "defense", "pos": [0, 0], "icon": "🔥", "name": "Daily Streaks",    "cost": 4,  "upkeep": 0, "requires": [], "desc": "Users come back every day to keep their streak. Fewer users switch to the copy.", "effects": { "loyalty": 0.35, "bubbles": 0.2 } },
+    { "id": "cloud",     "tree": "defense", "pos": [1, 0], "icon": "☁️", "name": "Cloud Servers",    "cost": 6,  "upkeep": 1, "requires": [], "desc": "Servers that grow with you. Daily costs go down, and the app never crashes.", "effects": { "costCut": 0.25 } },
+    { "id": "testers",   "tree": "defense", "pos": [2, 0], "icon": "🧪", "name": "Beta Testers",     "cost": 5,  "upkeep": 0, "requires": [], "desc": "Fans test new features first. You stay ahead of copies, and bugs get caught early.", "effects": { "patent": 0.2 } },
+    { "id": "community", "tree": "defense", "pos": [0, 1], "icon": "💬", "name": "Community Chat",   "cost": 10, "upkeep": 2, "requires": ["streaks"], "desc": "Superfans collect Hype bubbles for you and stay loyal.", "effects": { "loyalty": 0.35, "autoCollect": 1 } },
+    { "id": "lawyers",   "tree": "defense", "pos": [2, 1], "icon": "⚖️", "name": "Lawyers",          "cost": 14, "upkeep": 3, "requires": ["testers"], "desc": "Sue the copycat. Their copy loses 20% right now and goes slower after.", "effects": { "patent": 0.2, "setback": 20 } }
+  ]
+}

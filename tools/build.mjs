@@ -3,7 +3,11 @@
 //   dist-preview/  one HTML file for the Claude preview (no head tags, everything inline)
 // Run: node tools/build.mjs
 import { build } from "esbuild";
-import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, readdirSync, statSync } from "node:fs";
+
+function listFiles(dir, prefix = "") {
+  return readdirSync(dir).flatMap((f) => statSync(dir + f).isDirectory() ? listFiles(`${dir}${f}/`, `${prefix}${f}/`) : [prefix + f]);
+}
 
 const root = new URL("../", import.meta.url);
 const read = (p) => readFileSync(new URL(p, root), "utf8");
@@ -14,14 +18,12 @@ const js = (await build({
   bundle: true, minify: true, format: "iife", target: ["safari15", "chrome100"], write: false,
 })).outputFiles[0].text;
 const css = read("src/style.css");
-const body = read("src/body.html");
-const fonts = `<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600;700&display=swap">`;
+// The icon sprite goes inline at the top of the body, so <use href="#i-..."> works everywhere.
+const body = read("src/body.html").replace("<!--SPRITE-->", read("src/art/sprite.svg").trim());
 
 // Web app.
 rmSync(new URL("dist", root), { recursive: true, force: true });
-mkdirSync(new URL("dist/icons", root), { recursive: true });
+mkdirSync(new URL("dist", root), { recursive: true });
 writeFileSync(new URL("dist/app.js", root), js);
 writeFileSync(new URL("dist/style.css", root), css);
 writeFileSync(new URL("dist/index.html", root), `<!doctype html>
@@ -30,16 +32,16 @@ writeFileSync(new URL("dist/index.html", root), `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Hype Inc.</title>
-<meta name="description" content="Spread your homemade soda across the world before MegaCorp copies it.">
-<meta name="theme-color" content="#0a1424">
+<meta name="description" content="Grow your homemade product into a world brand before the big companies copy it.">
+<meta name="theme-color" content="#0A1022">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Hype Inc.">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
-${fonts}
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
 <link rel="stylesheet" href="style.css?v=${version}">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);height:100%}</style>
 </head>
@@ -52,19 +54,24 @@ if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catc
 </body>
 </html>
 `);
-writeFileSync(new URL("dist/sw.js", root), read("src/sw.js").replace("__VERSION__", version));
+cpSync(new URL("public", root), new URL("dist", root), { recursive: true });
 cpSync(new URL("src/manifest.webmanifest", root), new URL("dist/manifest.webmanifest", root));
-if (existsSync(new URL("icons", root))) cpSync(new URL("icons", root), new URL("dist/icons", root), { recursive: true });
+// The service worker caches every file of the game, so it works offline.
+const files = listFiles(new URL("dist/", root).pathname).filter((f) => !/^(sw\.js|\.nojekyll|icons\/app-icon-1024\.png)$/.test(f));
+writeFileSync(new URL("dist/sw.js", root), read("src/sw.js").replaceAll("__VERSION__", version).replace("__FILES__", JSON.stringify(files)));
 writeFileSync(new URL("dist/.nojekyll", root), "");
 
-// Preview: one file.
+// Preview: one HTML file with the fonts inline. Sound files go next to it.
+rmSync(new URL("dist-preview", root), { recursive: true, force: true });
 mkdirSync(new URL("dist-preview", root), { recursive: true });
+cpSync(new URL("public/sound", root), new URL("dist-preview/sound", root), { recursive: true });
+const inlineFonts = (text) => text.replace(/url\("fonts\/([^"]+)"\)/g, (_, f) =>
+  `url("data:font/woff2;base64,${readFileSync(new URL(`public/fonts/${f}`, root)).toString("base64")}")`);
 writeFileSync(new URL("dist-preview/index.html", root), `<title>Hype Inc.</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-${fonts}
 <style>
 html{height:100%}
-${css}
+${inlineFonts(css)}
 </style>
 ${body}
 <script>
