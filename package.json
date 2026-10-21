@@ -1,0 +1,24 @@
+{
+  "name": "hype-inc",
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "sim": "node tools/sim.mjs",
+    "map": "node tools/make-map.mjs",
+    "icons": "node tools/make-icons.mjs",
+    "smoke": "node tools/smoke.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "d3-geo": "^3.1.1",
+    "esbuild": "^0.24.2",
+    "playwright": "^1.56.1",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "type": "module",
+  "private": true
+}

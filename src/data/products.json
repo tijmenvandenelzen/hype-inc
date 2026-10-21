@@ -1,0 +1,14 @@
+{
+  "_note": "Starting products. v0.1 has one. appeal and the channel numbers multiply the base growth.",
+  "products": [
+    {
+      "id": "soda",
+      "name": "Soda",
+      "defaultBrand": "Fizzo",
+      "pitch": "A soda you mixed in your kitchen. Now the whole world needs to taste it.",
+      "appeal": 1.0,
+      "social": 0.0,
+      "shops": 0.0
+    }
+  ]
+}

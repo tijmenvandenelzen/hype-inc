@@ -1,0 +1,17 @@
+{
+  "_note": "Order must match the region ids in tools/make-map.mjs. pop is in millions. wealth, digital, retail and resist go from 0 to 1 (wealth from 0.2 to 1).",
+  "regions": [
+    { "id": "na",  "name": "North America",       "pop": 375,  "wealth": 1.0,  "digital": 0.9, "retail": 0.9, "resist": 0.35, "hot": false, "neighbors": ["ca", "we", "ea"] },
+    { "id": "ca",  "name": "Central America",     "pop": 225,  "wealth": 0.4,  "digital": 0.6, "retail": 0.6, "resist": 0.15, "hot": true,  "neighbors": ["na", "sa"] },
+    { "id": "sa",  "name": "South America",       "pop": 435,  "wealth": 0.4,  "digital": 0.7, "retail": 0.5, "resist": 0.2,  "hot": true,  "neighbors": ["ca", "af", "we"] },
+    { "id": "we",  "name": "Western Europe",      "pop": 420,  "wealth": 0.9,  "digital": 0.8, "retail": 0.9, "resist": 0.4,  "hot": false, "neighbors": ["na", "ee", "naf", "sa"] },
+    { "id": "ee",  "name": "Eastern Europe & Central Asia", "pop": 480, "wealth": 0.45, "digital": 0.6, "retail": 0.6, "resist": 0.3, "hot": false, "neighbors": ["we", "me", "ea", "sas"] },
+    { "id": "me",  "name": "Middle East",         "pop": 380,  "wealth": 0.6,  "digital": 0.7, "retail": 0.6, "resist": 0.35, "hot": true,  "neighbors": ["ee", "naf", "sas", "af"] },
+    { "id": "naf", "name": "North Africa",        "pop": 270,  "wealth": 0.3,  "digital": 0.5, "retail": 0.4, "resist": 0.25, "hot": true,  "neighbors": ["we", "me", "af"] },
+    { "id": "af",  "name": "Sub-Saharan Africa",  "pop": 1200, "wealth": 0.2,  "digital": 0.5, "retail": 0.3, "resist": 0.15, "hot": true,  "neighbors": ["naf", "me", "sa"] },
+    { "id": "sas", "name": "South Asia",          "pop": 1950, "wealth": 0.2,  "digital": 0.6, "retail": 0.4, "resist": 0.3,  "hot": true,  "neighbors": ["me", "ee", "sea", "ea"] },
+    { "id": "ea",  "name": "East Asia",           "pop": 1650, "wealth": 0.7,  "digital": 0.9, "retail": 0.8, "resist": 0.45, "hot": false, "neighbors": ["ee", "sas", "sea", "na"] },
+    { "id": "sea", "name": "Southeast Asia",      "pop": 690,  "wealth": 0.35, "digital": 0.8, "retail": 0.5, "resist": 0.2,  "hot": true,  "neighbors": ["ea", "sas", "oc"] },
+    { "id": "oc",  "name": "Oceania",             "pop": 45,   "wealth": 0.9,  "digital": 0.8, "retail": 0.8, "resist": 0.25, "hot": true,  "neighbors": ["sea", "na"] }
+  ]
+}

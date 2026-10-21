@@ -1,0 +1,110 @@
+<div id="app">
+  <header id="hud" class="gutter">
+    <div class="brandchip"><span class="dot"></span><b id="brandname">Fizzo</b><span class="day" id="day">Day 0</span></div>
+    <div class="share" aria-label="World market share">
+      <div class="share-top"><span>World market <b id="sharepct">0%</b></span><span>Goal <span id="goalpct">50%</span></span></div>
+      <div class="meter"><div class="mine" id="sharebar"></div><div class="theirs" id="rivalsharebar"></div><div class="goal"></div></div>
+    </div>
+    <div class="stats">
+      <div class="stat cash" id="cashstat"><small>Cash</small><b id="cash">$0</b><span class="net" id="net"></span></div>
+      <div class="stat hp"><small>Hype</small><b id="hp">0</b></div>
+    </div>
+  </header>
+
+  <button id="ticker" class="gutter" type="button" aria-label="Show news"><span class="tag">News</span><span class="text" id="tickertext">Welcome to Hype Inc.</span></button>
+
+  <main id="stage">
+    <canvas id="map" aria-label="World map"></canvas>
+    <div id="bubbles"></div>
+    <div id="banner" hidden></div>
+    <div id="newslog" hidden></div>
+    <section id="regioncard" hidden aria-live="polite"></section>
+  </main>
+
+  <footer id="bar" class="gutter">
+    <div class="rival" id="rivalbox">
+      <div class="rival-top"><span><b id="copyname">CopyCola</b> <span id="rivalstate">not started</span></span><span class="pct" id="copypct">0%</span></div>
+      <div class="meter"><div class="copy" id="copybar"></div></div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="upbtn" type="button">Upgrades <span class="badge" id="upbadge">0</span></button>
+      <div class="ctl">
+        <span class="seg-label">Price</span>
+        <div class="seg" id="priceseg" role="group" aria-label="Price">
+          <button type="button" data-price="cheap">$</button>
+          <button type="button" data-price="normal">$$</button>
+          <button type="button" data-price="premium">$$$</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <span class="seg-label">Speed</span>
+        <div class="seg" id="speedseg" role="group" aria-label="Speed">
+          <button type="button" data-speed="0" aria-label="Pause">II</button>
+          <button type="button" data-speed="1" aria-label="Normal speed">&#9654;</button>
+          <button type="button" data-speed="2" aria-label="Fast">&#9654;&#9654;</button>
+          <button type="button" data-speed="3" aria-label="Very fast">&#9654;&#9654;&#9654;</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<div class="overlay" id="start">
+  <div class="card">
+    <h1 class="logo">HYPE<br><em>INC.</em></h1>
+    <p class="pitch" id="pitch">A soda you mixed in your kitchen. Now the whole world needs to taste it.</p>
+    <div class="field">
+      <label for="brandinput">Name your drink</label>
+      <input id="brandinput" maxlength="14" autocomplete="off" autocapitalize="words" spellcheck="false" value="Fizzo">
+    </div>
+    <div class="field">
+      <span class="label">Pick your colour</span>
+      <div class="swatches" id="swatches"></div>
+    </div>
+    <ul class="howto">
+      <li><b>1</b><span>Pick a region to launch in. Your colour spreads as people fall in love with your drink.</span></li>
+      <li><b>2</b><span>Tap the yellow bubbles to earn Hype Points. Spend them on upgrades.</span></li>
+      <li><b>3</b><span>Watch your cash. Upgrades cost money every day, and at $0 you are out.</span></li>
+      <li><b>4</b><span>MegaCorp will try to copy you. Tap their purple spy bubbles to slow them down. Own half the world before their copy is ready.</span></li>
+    </ul>
+    <div class="row">
+      <button class="btn" id="newbtn" type="button">Choose where to launch</button>
+      <button class="btn ghost" id="continuebtn" type="button" hidden>Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="upgrades" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="uptitle">
+    <div class="sheet-head">
+      <h2 id="uptitle">Upgrades</h2>
+      <span class="hpchip" id="uphp">0 Hype</span>
+      <button class="iconbtn" id="upclose" type="button" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <p class="blurb" id="blurb"></p>
+    <div class="tree-wrap">
+      <div class="tree" id="tree"></div>
+      <div class="detail" id="detail"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="alert" hidden>
+  <div class="card alert" role="alertdialog" aria-modal="true">
+    <h2 id="alerttitle">Heads up</h2>
+    <p id="alerttext"></p>
+    <button class="btn" id="alertok" type="button">Got it</button>
+  </div>
+</div>
+
+<div class="overlay" id="end" hidden>
+  <div class="card end" id="endcard" role="dialog" aria-modal="true">
+    <h2 id="endtitle">You win!</h2>
+    <p id="endtext"></p>
+    <div class="record" id="record" hidden></div>
+    <div class="endstats" id="endstats"></div>
+    <div class="lesson" id="lesson"></div>
+    <div class="row"><button class="btn" id="againbtn" type="button">Play again</button></div>
+  </div>
+</div>

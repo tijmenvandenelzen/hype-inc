@@ -1,0 +1,27 @@
+{
+  "_note": "cost is Hype Points. upkeep is cash per day. requires: all of these. requiresAny: at least one. pos is [column, row] in the tree (3 columns, 3 rows).",
+  "trees": [
+    { "id": "product",  "name": "Product",  "blurb": "Make the drink better so more people love it." },
+    { "id": "channels", "name": "Channels", "blurb": "Get the drink in front of more people." },
+    { "id": "defense",  "name": "Defense",  "blurb": "Protect your fans and your cash from MegaCorp." }
+  ],
+  "upgrades": [
+    { "id": "recipe",    "tree": "product", "pos": [1, 0], "icon": "🧪", "name": "Better Recipe",    "cost": 3,  "upkeep": 0, "requires": [], "desc": "A tastier formula. Every fan tells more friends.", "effects": { "appeal": 0.25 } },
+    { "id": "can",       "tree": "product", "pos": [0, 1], "icon": "🎨", "name": "Cool Can Design",  "cost": 6,  "upkeep": 0, "requires": ["recipe"], "desc": "A can that looks great in photos. Social media works better.", "effects": { "appeal": 0.15, "social": 0.25 } },
+    { "id": "zero",      "tree": "product", "pos": [2, 1], "icon": "🥤", "name": "Zero Sugar",       "cost": 7,  "upkeep": 0, "requires": ["recipe"], "desc": "A healthy version. Fewer people say no, and health scares do not hurt you.", "effects": { "appeal": 0.1, "resist": 0.25 } },
+    { "id": "limited",   "tree": "product", "pos": [0, 2], "icon": "⭐", "name": "Limited Editions", "cost": 15, "upkeep": 2, "requires": ["can"], "desc": "Rare flavors that people collect. Big appeal and more Hype bubbles.", "effects": { "appeal": 0.45, "bubbles": 0.3 } },
+    { "id": "local",     "tree": "product", "pos": [2, 2], "icon": "🌶️", "name": "Local Flavors",    "cost": 12, "upkeep": 1, "requires": ["zero"], "desc": "Mango in Asia, lime in Mexico. Hard markets open up.", "effects": { "resist": 0.45 } },
+
+    { "id": "social",    "tree": "channels", "pos": [0, 0], "icon": "📱", "name": "Social Media",   "cost": 2,  "upkeep": 1, "requires": [], "desc": "Post videos. Works best where people are online a lot.", "effects": { "social": 0.6 } },
+    { "id": "shops",     "tree": "channels", "pos": [2, 0], "icon": "🏪", "name": "Supermarkets",   "cost": 4,  "upkeep": 2, "requires": [], "desc": "Get on the shelves. Works best where there are many shops.", "effects": { "shops": 0.6 } },
+    { "id": "influence", "tree": "channels", "pos": [0, 1], "icon": "🤳", "name": "Influencers",    "cost": 7,  "upkeep": 4, "requires": ["social"], "desc": "Pay creators to drink it on camera. More fans and more Hype bubbles.", "effects": { "social": 0.6, "bubbles": 0.5 } },
+    { "id": "shipping",  "tree": "channels", "pos": [2, 1], "icon": "🚢", "name": "Global Shipping", "cost": 8,  "upkeep": 3, "requires": ["shops"], "desc": "Send crates overseas. Your brand jumps to new regions much faster.", "effects": { "travel": 1.5, "shops": 0.2 } },
+    { "id": "tv",        "tree": "channels", "pos": [1, 2], "icon": "📺", "name": "TV Ads",         "cost": 14, "upkeep": 9, "requires": [], "requiresAny": ["influence", "shipping"], "desc": "Ads during the big match. Growth goes up everywhere, but it costs a lot every day.", "effects": { "tv": 0.7, "travel": 0.5 } },
+
+    { "id": "loyalty",   "tree": "defense", "pos": [0, 0], "icon": "💳", "name": "Loyalty App",    "cost": 4,  "upkeep": 1, "requires": [], "desc": "Points for every can. MegaCorp steals fewer of your fans.", "effects": { "loyalty": 0.35 } },
+    { "id": "factory",   "tree": "defense", "pos": [1, 0], "icon": "🏭", "name": "Smart Factory",  "cost": 6,  "upkeep": 0, "requires": [], "desc": "Robots fill the cans. Daily costs go down and each sale earns more.", "effects": { "costCut": 0.3, "margin": 0.25 } },
+    { "id": "patent",    "tree": "defense", "pos": [2, 0], "icon": "📜", "name": "Patent",         "cost": 6,  "upkeep": 0, "requires": [], "desc": "Your recipe is protected. MegaCorp copies you more slowly.", "effects": { "patent": 0.25 } },
+    { "id": "fanclub",   "tree": "defense", "pos": [0, 1], "icon": "🎉", "name": "Fan Club",       "cost": 10, "upkeep": 2, "requires": ["loyalty"], "desc": "Superfans collect Hype bubbles for you and stay loyal.", "effects": { "loyalty": 0.35, "autoCollect": 1 } },
+    { "id": "lawyers",   "tree": "defense", "pos": [2, 1], "icon": "⚖️", "name": "Lawyers",        "cost": 14, "upkeep": 3, "requires": ["patent"], "desc": "Sue MegaCorp. Their copycat loses 20% right now and goes slower after.", "effects": { "patent": 0.2, "setback": 20 } }
+  ]
+}
