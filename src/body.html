@@ -63,10 +63,12 @@
     <div class="field">
       <span class="label">3. Pick your colour</span>
       <div class="swatches" id="swatches"></div>
+      <div class="colorhint" id="colorhint" aria-live="polite"></div>
     </div>
     <div class="field">
       <span class="label">4. Pick a challenge</span>
       <div class="scenarios" id="scenarios"></div>
+      <div id="hardbox"></div>
     </div>
     <details class="howto-box">
       <summary>How to play</summary>
@@ -81,6 +83,7 @@
       <button class="btn" id="newbtn" type="button">Start</button>
       <button class="btn ghost" id="continuebtn" type="button" hidden>Continue</button>
     </div>
+    <button class="linkbtn" id="trophybtn" type="button"><svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg> Trophies and save code</button>
   </div>
 </div>
 
@@ -117,5 +120,15 @@
     <div class="endstats" id="endstats"></div>
     <div class="lesson" id="lesson"></div>
     <div class="row"><button class="btn" id="againbtn" type="button">Play again</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="trophies" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="trophytitle">
+    <div class="sheet-head">
+      <h2 id="trophytitle">Trophies</h2>
+      <button class="iconbtn" id="trophyclose" type="button" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div id="trophybody"></div>
   </div>
 </div>
