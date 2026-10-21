@@ -28,6 +28,7 @@ Keys on a Mac: space pauses, 1 2 3 set the speed, U opens upgrades.
 | --- | --- |
 | `src/engine.js` | The game rules. Pure functions, no DOM. |
 | `src/main.js` | Map drawing, bubbles, panels, sound, game loop. |
+| `src/tutorial.js`, `tutorial.css` | Guided first game and first-visit tips. Reads the page and `window.hype` only. |
 | `src/data/regions.json`, `balance.json` | The 12 regions and the main numbers. |
 | `src/data/products.json` | 5 products. Each names its upgrades file and event files. |
 | `src/data/upgrades/<product>.json` | 15 upgrades in 3 trees per product. |
@@ -39,6 +40,7 @@ Keys on a Mac: space pauses, 1 2 3 set the speed, U opens upgrades.
 | `tools/sim.mjs` | Plays many games with bots to check the balance. |
 | `tools/build.mjs` | Builds `dist/` (web app) and `dist-preview/` (one HTML file). |
 | `tools/smoke.mjs` | Plays the built game in a headless browser and saves screenshots. |
+| `tools/tutorial-test.mjs` | Plays through the tutorial on iPhone and Mac sizes, one screenshot per step. |
 
 ## Code entry points
 
@@ -58,7 +60,21 @@ npm run build        # build dist/ and dist-preview/
 npm run sim          # balance check: win rates for 4 bots, all products
 npm run sim -- 40 soda all   # one product, all challenges
 npx serve dist       # play locally
+node tools/tutorial-test.mjs http://localhost:3000 shots   # tutorial check
 ```
+
+## Tutorial
+
+A new player gets a guided first game (about 3 minutes): pick a region, the
+goal bar, cash and Hype, the first bubble, the first upgrade, price, speed,
+the rival and the first spy. The game clock stops on the cards that need a
+tap. Each step is one entry in `STEPS` in `src/tutorial.js`: `when` shows it,
+`done` or a `next` button ends it, `hold` stops the clock.
+
+After that, `TIPS` shows a short tip the first time a screen is used (start
+screen, news list, region card, Channels and Defense trees, locked upgrades,
+low cash, end screen). "Play the tutorial again" on the start screen resets
+both. Saved keys: `hypeinc.tutorial.v1`, `hypeinc.tips.v1`.
 
 To change the balance, edit `src/data/balance.json` or `src/data/rival.json`,
 then run `npm run sim`. Aim for: good bot wins most games, idle bot never wins.

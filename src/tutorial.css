@@ -1,0 +1,31 @@
+/* Tutorial coach: a ring around the thing to look at, and a card that explains it. */
+.coach-ring {
+  position: fixed; z-index: 60; pointer-events: none;
+  border: 3px solid var(--hype); border-radius: 14px;
+  box-shadow: 0 0 18px var(--hype);
+  transition: left 0.2s, top 0.2s, width 0.2s, height 0.2s;
+  animation: coach-pulse 1.6s ease-in-out infinite;
+}
+.coach-ring.dim { box-shadow: 0 0 18px var(--hype), 0 0 0 200vmax rgb(5 10 20 / 0.55); }
+@keyframes coach-pulse { 50% { border-color: #fff3b0; } }
+
+.coach-card {
+  position: fixed; z-index: 61;
+  background: var(--panel); border: 2px solid var(--hype); border-radius: 16px;
+  padding: 14px 16px 12px; box-shadow: 0 14px 40px rgb(0 0 0 / 0.6);
+  animation: rise 0.25s ease-out;
+}
+.coach-card.tip { border-color: var(--line); }
+.coach-card.small { padding: 10px 14px; }
+.coach-card.small p { font-size: 13px; }
+.coach-top { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--hype); margin-bottom: 4px; }
+.coach-card h3 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 400; font-size: 17px; }
+.coach-card p { margin: 0; font-size: 14px; color: var(--ink); text-wrap: pretty; }
+.coach-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; }
+.coach-row:empty { display: none; }
+.coach-skip { background: none; border: 0; color: var(--muted); font-size: 12px; padding: 8px 0; min-height: 36px; text-decoration: underline; }
+.coach-next {
+  margin-left: auto; border: 0; border-radius: 10px; padding: 8px 16px; min-height: 40px;
+  background: var(--hype); color: var(--ocean); font-family: var(--font-display); font-size: 14px;
+}
+.coach-replay { display: block; margin: 12px auto 0; background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; min-height: 36px; }

@@ -6,6 +6,7 @@ import {
   buildData, newGame, step, buy, collect, mods, worldShare, dailyMoney, canBuy,
   rivalDef, copyName, topRival, isBlocked,
 } from "./engine.js";
+import { tutorialHold } from "./tutorial.js";
 
 const $ = (id) => document.getElementById(id);
 const SAVE_KEY = "hypeinc.save.v2";
@@ -820,7 +821,7 @@ let last = performance.now();
 function frame(now) {
   const dt = Math.min(100, now - last);
   last = now;
-  const running = mode === "play" && state && state.status === "playing" && speed > 0 && !modalOpen();
+  const running = mode === "play" && state && state.status === "playing" && speed > 0 && !modalOpen() && !tutorialHold();
   if (running) {
     acc += dt;
     const len = data.balance.dayMs[speed];

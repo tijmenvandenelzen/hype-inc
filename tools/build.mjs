@@ -16,6 +16,7 @@ const version = JSON.parse(read("package.json")).version;
 const js = (await build({
   entryPoints: [new URL("src/main.js", root).pathname],
   bundle: true, minify: true, format: "iife", target: ["safari15", "chrome100"], write: false,
+  loader: { ".css": "text" },
 })).outputFiles[0].text;
 const css = read("src/style.css");
 // The icon sprite goes inline at the top of the body, so <use href="#i-..."> works everywhere.
