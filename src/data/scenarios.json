@@ -51,9 +51,9 @@
       "unlock": {
         "wins": 1
       },
-      "pitch": "Your product is amazing and your can looks great. But you only have $120k. Every upgrade with upkeep is a risk.",
+      "pitch": "Your product is amazing and your can looks great. But you only have $250k. Every upgrade with upkeep is a risk.",
       "start": null,
-      "startCash": 350,
+      "startCash": 250,
       "hp": 4,
       "owned": [
         "recipe",
@@ -82,10 +82,10 @@
       "unlock": {
         "scenarioWon": "broke-genius"
       },
-      "pitch": "Heritage Brands already has shops everywhere, and its copy is already 15% done. You start in South America with a patent and a pile of Hype Points.",
+      "pitch": "Heritage Brands already has shops everywhere, and its copy is already 20% done. You start in South America with a patent and a pile of Hype Points.",
       "start": "sa",
       "startCash": 900,
-      "hp": 10,
+      "hp": 8,
       "owned": [
         "patent"
       ],
@@ -93,7 +93,7 @@
         {
           "id": "heritage",
           "noticed": true,
-          "progress": 15,
+          "progress": 20,
           "seedRegions": [
             "we",
             "na",
@@ -114,7 +114,7 @@
       },
       "pitch": "All three rivals at once. Each has its own copy bar. If any bar hits 100, you lose. You win at 42% of the world, because three rivals take a big part of it.",
       "start": null,
-      "startCash": 1200,
+      "startCash": 1500,
       "hp": 5,
       "owned": [],
       "rivals": [
