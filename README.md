@@ -38,6 +38,7 @@ Keys on a Mac: space pauses, 1 2 3 set the speed, U opens upgrades.
 | `src/art/`, `public/fonts/`, `public/icons/` | Icon sprite, fonts and app icons. |
 | `src/map-data.js` | The world dot map. Made by `tools/make-map.mjs`. |
 | `tools/sim.mjs` | Plays many games with bots to check the balance. |
+| `sim/` | Balance sim with smarter bots and targets. See `sim/README.md`. |
 | `tools/build.mjs` | Builds `dist/` (web app) and `dist-preview/` (one HTML file). |
 | `tools/smoke.mjs` | Plays the built game in a headless browser and saves screenshots. |
 | `tools/tutorial-test.mjs` | Plays through the tutorial on iPhone and Mac sizes, one screenshot per step. |
@@ -51,6 +52,28 @@ Keys on a Mac: space pauses, 1 2 3 set the speed, U opens upgrades.
   `spy`, `reached`, `alert`, `end`.
 - `buy(state, data, id)`, `collect(state, data, { type, value | rival })`.
 - In the browser, `window.hype` gives `state`, `data` and `BASE` for tests.
+
+## Unlocks between runs
+
+The game keeps a save file in the browser (`localStorage` key `hypeinc.progress.v1`).
+After each run it counts wins, checks the achievements and opens new things:
+
+| What | Rule (in `src/data/unlocks.json`) |
+| --- | --- |
+| Sneakers | Finish 1 run |
+| Phone App | Win 1 run |
+| Video Game | Win 2 runs |
+| Burger Chain | Win with 3 different products |
+| Hard mode | Win 1 run |
+| 7 extra brand colours | One per achievement |
+| Challenges | The `unlock` field in `src/data/scenarios.json` |
+
+The 16 achievements are in `src/data/achievements.json`. The start screen has a
+"Trophies and save code" button. The save code is a text the player can copy to
+keep the progress or move it to another device.
+
+Code: `src/progress.js` (rules, no DOM) and `src/progress-ui.js` (screens).
+Run `node tools/progress-check.mjs` after you change the unlock or achievement data.
 
 ## Commands
 
@@ -76,8 +99,9 @@ screen, news list, region card, Channels and Defense trees, locked upgrades,
 low cash, end screen). "Play the tutorial again" on the start screen resets
 both. Saved keys: `hypeinc.tutorial.v1`, `hypeinc.tips.v1`.
 
-To change the balance, edit `src/data/balance.json` or `src/data/rival.json`,
-then run `npm run sim`. Aim for: good bot wins most games, idle bot never wins.
+To change the balance, edit the files in `src/data/`, then run
+`npm run balance`. It checks the win rates against `sim/targets.json`. See
+`sim/README.md`.
 
 ## Deploy
 
@@ -86,3 +110,5 @@ push to `main`. In the repo settings, set Pages > Source to "GitHub Actions".
 
 Map data: Natural Earth through `world-atlas`. Fonts: Bungee and Bricolage
 Grotesque (SIL OFL). Sound: made from code, CC0.
+
+Live: https://tijmenvandenelzen.github.io/hype-inc/

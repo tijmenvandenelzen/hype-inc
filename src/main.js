@@ -6,13 +6,16 @@ import {
   buildData, newGame, step, buy, collect, mods, worldShare, dailyMoney, canBuy,
   rivalDef, copyName, topRival, isBlocked,
 } from "./engine.js";
+import { applyHard } from "./progress.js";
+import {
+  isOpen, howToOpen, brandColors, renderHard, finishRun, openTrophies, closeTrophies,
+} from "./progress-ui.js";
 import { tutorialHold } from "./tutorial.js";
 
 const $ = (id) => document.getElementById(id);
 const SAVE_KEY = "hypeinc.save.v2";
-const BEST_KEY = "hypeinc.best.v1";
-// Brand colours from the art workstream. Each passes 4.5:1 with dark text.
-const COLORS = ["#FF6A3D", "#FF4FA3", "#2EE6C5", "#B8F23A", "#4CC9FF"];
+// Brand colours are in data/unlocks.json. Each passes 4.5:1 with dark text.
+const COLORS = BASE.unlocks.colors.map((c) => c.hex);
 
 const store = {
   get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
@@ -80,7 +83,7 @@ let selected = -1;
 let acc = 0;
 let bubbles = [];
 const news = [];
-const pick = { product: BASE.products[0].id, scenario: "kitchen", color: COLORS[0] };
+const pick = { product: BASE.products[0].id, scenario: "kitchen", color: COLORS[0], hard: false };
 let tab = "product", chosenUpgrade = null;
 let firstBubbleHint = true;
 let lastMilestone = 0;
@@ -466,7 +469,7 @@ function renderMute() {
 $("mutebtn").onclick = () => { sound.toggleMute(); renderMute(); };
 
 // ---------- Overlays ----------
-const overlays = ["start", "upgrades", "alert", "end"];
+const overlays = ["start", "upgrades", "alert", "end", "trophies"];
 function modalOpen() { return overlays.some((id) => !$(id).hidden); }
 
 function showAlert(title, text, tip = "") {
@@ -480,22 +483,10 @@ function showAlert(title, text, tip = "") {
 $("alertok").onclick = () => { sfx("ui_close"); $("alert").hidden = true; };
 
 // ---------- Start ----------
-function best() { return { wins: 0, won: [], ...(store.get(BEST_KEY) || {}) }; }
-
-function unlocked(sc) {
-  const u = sc.unlock;
-  if (!u) return true;
-  const b = best();
-  if (u.wins) return b.wins >= u.wins;
-  if (u.scenarioWon) return b.won.includes(u.scenarioWon);
-  return true;
-}
-function unlockText(sc) {
-  const u = sc.unlock;
-  if (u.wins) return `Win ${u.wins} game${u.wins > 1 ? "s" : ""} to unlock.`;
-  const other = BASE.scenarios.find((s) => s.id === u.scenarioWon);
-  return `Win ${other ? other.name : "another challenge"} to unlock.`;
-}
+// Unlocks between runs are in progress.js and progress-ui.js.
+const unlocked = (sc) => isOpen("scenarios", sc.id);
+const unlockText = (sc) => `${howToOpen("scenarios", sc.id)} to unlock.`;
+const gameData = (product, scenario, hard) => applyHard(buildData(BASE, product, scenario), hard ? BASE.unlocks.hard : null);
 
 function setBrandColor(c) {
   pick.color = c;
@@ -508,9 +499,15 @@ function setBrandColor(c) {
 
 function renderStart() {
   const p = BASE.products.find((x) => x.id === pick.product);
-  $("products").innerHTML = BASE.products.map((x) =>
-    `<button type="button" class="prod" data-p="${x.id}" aria-pressed="${x.id === pick.product}">${icon(x.id, "•")}<span>${esc(x.name)}</span></button>`).join("");
+  $("products").innerHTML = BASE.products.map((x) => isOpen("products", x.id)
+    ? `<button type="button" class="prod" data-p="${x.id}" aria-pressed="${x.id === pick.product}">${icon(x.id, "•")}<span>${esc(x.name)}</span></button>`
+    : `<button type="button" class="prod locked" data-p="${x.id}" aria-disabled="true" aria-label="${esc(x.name)}, locked"><span class="lock" aria-hidden="true">🔒</span><span>${esc(x.name)}</span></button>`).join("");
   $("products").querySelectorAll(".prod").forEach((b) => (b.onclick = () => {
+    if (b.classList.contains("locked")) {
+      sfx("denied");
+      $("productinfo").innerHTML = `<div class="lockinfo">🔒 ${esc(howToOpen("products", b.dataset.p))} to unlock ${esc(BASE.products.find((x) => x.id === b.dataset.p).name)}.</div>`;
+      return;
+    }
     sfx("ui_tap");
     const old = BASE.products.find((x) => x.id === pick.product);
     pick.product = b.dataset.p;
@@ -529,16 +526,25 @@ function renderStart() {
       <small>${open ? esc(sc.pitch) : esc(unlockText(sc))}</small></button>`;
   }).join("");
   $("scenarios").querySelectorAll(".scen").forEach((b) => (b.onclick = () => { sfx("ui_tap"); pick.scenario = b.dataset.s; renderStart(); }));
+  renderHard($("hardbox"), pick.hard, (v) => { sfx("ui_tap"); pick.hard = v; renderStart(); });
   const sc = BASE.scenarios.find((x) => x.id === pick.scenario);
   $("newbtn").textContent = sc.start ? `Start ${sc.name}` : "Choose where to launch";
 }
 
 function buildStart() {
   const sw = $("swatches");
-  sw.innerHTML = COLORS.map((c) => `<button type="button" class="swatch" data-c="${c}" style="background:${c};color:${c}" aria-label="Colour ${c}"></button>`).join("");
-  sw.querySelectorAll(".swatch").forEach((b) => (b.onclick = () => { sfx("ui_tap"); setBrandColor(b.dataset.c); }));
+  sw.innerHTML = brandColors().map((c) => c.open
+    ? `<button type="button" class="swatch" data-c="${c.hex}" style="background:${c.hex};color:${c.hex}" aria-label="${esc(c.name)}"></button>`
+    : `<button type="button" class="swatch locked" data-how="${esc(c.how)}" aria-label="${esc(c.name)}, locked. ${esc(c.how)}" title="${esc(c.how)}"><span aria-hidden="true">🔒</span></button>`).join("");
+  sw.querySelectorAll(".swatch").forEach((b) => (b.onclick = () => {
+    if (b.classList.contains("locked")) { sfx("denied"); $("colorhint").textContent = `🔒 ${b.dataset.how} to unlock this colour.`; return; }
+    sfx("ui_tap"); $("colorhint").textContent = ""; setBrandColor(b.dataset.c);
+  }));
+  if (!brandColors().some((c) => c.open && c.hex === pick.color)) pick.color = COLORS[0];
   setBrandColor(pick.color);
   if (!BASE.scenarios.find((s) => s.id === pick.scenario && unlocked(s))) pick.scenario = "kitchen";
+  if (!isOpen("products", pick.product)) pick.product = BASE.products[0].id;
+  if (!isOpen("hard")) pick.hard = false;
   $("brandinput").value = BASE.products.find((x) => x.id === pick.product).defaultBrand;
   renderStart();
   const save = store.get(SAVE_KEY);
@@ -556,7 +562,7 @@ $("newbtn").onclick = () => {
   const name = $("brandinput").value.trim().slice(0, 14) || p.defaultBrand;
   $("brandinput").value = name;
   $("brandname").textContent = name;
-  data = buildData(BASE, pick.product, pick.scenario);
+  data = gameData(pick.product, pick.scenario, pick.hard);
   $("start").hidden = true;
   state = null;
   clearBubbles();
@@ -570,7 +576,7 @@ $("continuebtn").onclick = () => {
   const save = store.get(SAVE_KEY);
   if (!save) return;
   sfx("ui_tap");
-  data = buildData(BASE, save.product, save.scenario);
+  data = gameData(save.product, save.scenario, save.hard);
   state = save;
   setBrandColor(state.color);
   $("brandname").textContent = state.brand;
@@ -589,6 +595,7 @@ $("continuebtn").onclick = () => {
 function launch(g) {
   const brand = $("brandname").textContent;
   state = newGame(data, { brand, color: pick.color, start: g, seed: Math.floor(Math.random() * 1e9) });
+  state.hard = !!data.hard;
   mode = "play";
   firstBubbleHint = true;
   lastMilestone = 0;
@@ -721,6 +728,7 @@ document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "INPUT") { if (e.key === "Enter") $("newbtn").click(); return; }
   if (e.key === "Escape") {
     if (!$("upgrades").hidden) closeUpgrades();
+    else if (!$("trophies").hidden) closeTrophies();
     else if (!$("alert").hidden) $("alert").hidden = true;
     else selectRegion(-1);
   }
@@ -740,7 +748,7 @@ function showEnd() {
   sfx(won ? "win" : "lose");
   const ws = worldShare(state, data);
   $("endcard").className = `card end ${state.status}`;
-  $("endtitle").textContent = won ? "You win!" : "Game over";
+  $("endtitle").textContent = (won ? "You win!" : "Game over") + (state.hard ? " (Hard)" : "");
   $("endtext").textContent = state.reason;
   const bought = Object.keys(state.owned).length;
   $("endstats").innerHTML = [
@@ -760,24 +768,20 @@ function showEnd() {
   }
   $("lesson").textContent = lesson;
   const rec = $("record");
-  rec.hidden = true;
-  if (won) {
-    const b = best();
-    const before = BASE.scenarios.filter(unlocked).length;
-    const msgs = [];
-    if (!b.fastest || state.day < b.fastest) msgs.push(b.fastest ? `New record! Your old best was ${b.fastest} days.` : "First win!");
-    b.fastest = Math.min(b.fastest || Infinity, state.day);
-    b.wins++;
-    if (!b.won.includes(state.scenario)) b.won.push(state.scenario);
-    store.set(BEST_KEY, b);
-    if (BASE.scenarios.filter(unlocked).length > before) msgs.push("You unlocked a new challenge!");
-    if (msgs.length) { rec.textContent = msgs.join(" "); rec.hidden = false; }
-  }
+  const run = finishRun(state, data);
+  rec.innerHTML = run.html;
+  rec.hidden = !run.html;
+  if (run.earned.length || run.unlocked.length) setTimeout(() => sfx("milestone"), 900);
   $("end").hidden = false;
 }
+$("trophybtn").onclick = () => { sfx("ui_open"); openTrophies(sfx); };
+$("trophyclose").onclick = () => { sfx("ui_close"); closeTrophies(); };
+$("trophies").addEventListener("pointerdown", (e) => { if (e.target.id === "trophies") closeTrophies(); });
+
 $("againbtn").onclick = () => {
   sfx("ui_tap");
   $("end").hidden = true;
+  $("alert").hidden = true;
   state = null;
   mode = "title";
   selected = -1;

@@ -9,6 +9,7 @@
   "farSpread": 0.25,
   "seedShare": 0.0005,
   "winShare": 0.5,
+  "rivalLoseShare": 0.6,
   "dayMs": [
     0,
     1500,

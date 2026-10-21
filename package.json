@@ -7,7 +7,8 @@
     "sim": "node tools/sim.mjs",
     "map": "node tools/make-map.mjs",
     "icons": "node tools/make-icons.mjs",
-    "smoke": "node tools/smoke.mjs"
+    "smoke": "node tools/smoke.mjs",
+    "balance": "node sim/run.mjs"
   },
   "keywords": [],
   "author": "",

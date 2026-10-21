@@ -1,0 +1,124 @@
+{
+  "_note": "What opens between runs. A rule is null (always open) or an object; see src/progress.js ruleMet. Scenario rules are in scenarios.json (field unlock).",
+  "products": {
+    "soda": null,
+    "sneakers": {
+      "runs": 1
+    },
+    "app": {
+      "wins": 1
+    },
+    "game": {
+      "wins": 2
+    },
+    "burger": {
+      "productsWon": 3
+    }
+  },
+  "hard": {
+    "unlock": {
+      "wins": 1
+    },
+    "label": "Hard",
+    "desc": "Rivals wake up sooner and copy you faster. Growth is a bit slower and you start with less cash.",
+    "cashMult": 0.9,
+    "balance": {
+      "growth": 0.96,
+      "bubbleChance": 0.9
+    },
+    "rival": {
+      "copyBaseRate": 1.25,
+      "copyShareRate": 1.15,
+      "noticeDay": 0.8,
+      "spySetback": 0.85
+    }
+  },
+  "colors": [
+    {
+      "id": "orange",
+      "name": "Orange",
+      "hex": "#FF6A3D",
+      "unlock": null
+    },
+    {
+      "id": "pink",
+      "name": "Pink",
+      "hex": "#FF4FA3",
+      "unlock": null
+    },
+    {
+      "id": "aqua",
+      "name": "Aqua",
+      "hex": "#2EE6C5",
+      "unlock": null
+    },
+    {
+      "id": "lime",
+      "name": "Lime",
+      "hex": "#B8F23A",
+      "unlock": null
+    },
+    {
+      "id": "sky",
+      "name": "Sky",
+      "hex": "#4CC9FF",
+      "unlock": null
+    },
+    {
+      "id": "gold",
+      "name": "Gold",
+      "hex": "#FFC93C",
+      "unlock": {
+        "achievement": "first-win"
+      }
+    },
+    {
+      "id": "coral",
+      "name": "Coral",
+      "hex": "#FF8A7A",
+      "unlock": {
+        "achievement": "lesson"
+      }
+    },
+    {
+      "id": "mint",
+      "name": "Mint",
+      "hex": "#7CF5A8",
+      "unlock": {
+        "achievement": "spy-hunter"
+      }
+    },
+    {
+      "id": "ice",
+      "name": "Ice",
+      "hex": "#CFE8FF",
+      "unlock": {
+        "achievement": "world-tour"
+      }
+    },
+    {
+      "id": "bubblegum",
+      "name": "Bubblegum",
+      "hex": "#FF9FD6",
+      "unlock": {
+        "achievement": "speedrun"
+      }
+    },
+    {
+      "id": "lava",
+      "name": "Lava",
+      "hex": "#FF5A4E",
+      "unlock": {
+        "achievement": "hard-win"
+      }
+    },
+    {
+      "id": "chrome",
+      "name": "Chrome",
+      "hex": "#E8ECF5",
+      "unlock": {
+        "achievement": "empire"
+      }
+    }
+  ]
+}

@@ -47,6 +47,13 @@ export function copyName(def, brand) {
 }
 
 // The rival with the highest copy bar.
+// The rival that owns the most people.
+function biggestRival(state, data) {
+  const pop = {};
+  data.regions.forEach((d, i) => { const o = state.regions[i].rivalOwner; if (o) pop[o] = (pop[o] || 0) + d.pop * state.regions[i].r; });
+  return state.rivals.reduce((a, r) => ((pop[r.id] || 0) > (pop[a.id] || 0) ? r : a), state.rivals[0]);
+}
+
 export function topRival(state) {
   return state.rivals.reduce((a, r) => (r.progress > a.progress ? r : a), state.rivals[0]);
 }
@@ -286,7 +293,7 @@ export function step(state, data) {
     const room = Math.max(0, 1 - s.f - s.r);
     s.r += strength * (s.r + 0.0005) * room;
     const stolen = def.steal * s.r * s.f * Math.max(0, 1 - m.loyalty);
-    s.f -= stolen; s.r += stolen;
+    s.f -= stolen; s.r = Math.min(1 - s.f, s.r + stolen);
   });
 
   // Money.
@@ -312,7 +319,9 @@ export function step(state, data) {
   // Win and lose.
   const after = worldShare(state, data);
   state.stats.peakShare = Math.max(state.stats.peakShare, after.share);
-  const done = state.rivals.find((r) => r.progress >= 100);
+  // A rival also wins when its copies own most of the world, even if its copy bar is low.
+  const done = state.rivals.find((r) => r.progress >= 100) ||
+    (after.rivalShare >= (b.rivalLoseShare ?? 0.6) ? biggestRival(state, data) : null);
   if (after.share >= b.winShare) {
     const def = rivalDef(data, topRival(state).id);
     end(state, "won", `${state.brand} is loved all over the world. ${fill(def.lines.win, rivalCtx(state, data, def, -1))}`);
@@ -483,7 +492,10 @@ function runEvent(state, data) {
     }
     if (fx.freeze) state.regions[region].freezeDays = fx.freeze;
     if (fx.reach) reach(state, region, -1);
-    if (fx.rivalSeed && seedRival(state, region, rs.id)) state.regions[region].r += 0.01;
+    if (fx.rivalSeed && seedRival(state, region, rs.id)) {
+      const g = state.regions[region];
+      g.r = Math.min(1 - g.f, g.r + 0.01);
+    }
     const bad = fx.freeze || fx.cash < 0 || fx.copy > 0 || fx.rivalSeed || (fx.boost && fx.boost.mult < 1);
     return { type: "news", kind: bad ? "bad" : "good", text: fill(e.text, ctx), region, cash: fx.cash || 0 };
   }

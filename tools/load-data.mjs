@@ -15,5 +15,7 @@ export function loadBase() {
     rivals: read("rivals").rivals,
     scenarios: read("scenarios").scenarios,
     balance: read("balance"),
+    unlocks: read("unlocks"),
+    achievements: read("achievements").achievements,
   };
 }

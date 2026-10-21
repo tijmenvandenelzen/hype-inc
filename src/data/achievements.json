@@ -1,0 +1,21 @@
+{
+  "_note": "Checked at the end of each run. A check is an object; all keys must be true. See src/progress.js checkMet.",
+  "achievements": [
+    { "id": "lesson", "name": "Lesson Learned", "icon": "📉", "desc": "Lose a run. Every founder fails once.", "check": { "status": "lost" } },
+    { "id": "first-win", "name": "Market Leader", "icon": "🏆", "desc": "Win a run.", "check": { "status": "won" } },
+    { "id": "speedrun", "name": "Overnight Success", "icon": "⚡", "desc": "Win before day 200.", "check": { "status": "won", "maxDay": 200 } },
+    { "id": "lean", "name": "Lean Startup", "icon": "🪶", "desc": "Win with 6 upgrades or fewer.", "check": { "status": "won", "maxUpgrades": 6 } },
+    { "id": "maxed", "name": "Maxed Out", "icon": "🧰", "desc": "Own all 15 upgrades in one run.", "check": { "minUpgrades": 15 } },
+    { "id": "spy-hunter", "name": "Spy Hunter", "icon": "🕵️", "desc": "Catch 20 rival spies in one run.", "check": { "minSpies": 20 } },
+    { "id": "world-tour", "name": "World Tour", "icon": "🌍", "desc": "Reach every region in one run.", "check": { "allRegions": true } },
+    { "id": "cash-pile", "name": "Cash Pile", "icon": "💰", "desc": "End a run with $2M or more in cash.", "check": { "minCash": 2000 } },
+    { "id": "close-call", "name": "Close Call", "icon": "😅", "desc": "Win while a rival copy is 90% ready.", "check": { "status": "won", "minRivalBar": 90 } },
+    { "id": "hard-win", "name": "Hard Boiled", "icon": "🔥", "desc": "Win a run on Hard.", "check": { "status": "won", "hard": true } },
+    { "id": "island", "name": "Island Escape", "icon": "🏝️", "desc": "Win Tiny Island.", "check": { "status": "won", "scenario": "tiny-island" } },
+    { "id": "genius", "name": "Not So Broke", "icon": "💡", "desc": "Win Broke Genius.", "check": { "status": "won", "scenario": "broke-genius" } },
+    { "id": "underdog", "name": "Underdog", "icon": "🏁", "desc": "Win They Got There First.", "check": { "status": "won", "scenario": "head-start" } },
+    { "id": "warlord", "name": "Three-Way Winner", "icon": "⚔️", "desc": "Win Three-Way War.", "check": { "status": "won", "scenario": "three-way" } },
+    { "id": "serial", "name": "Serial Founder", "icon": "🔁", "desc": "Finish 10 runs.", "check": { "careerRuns": 10 } },
+    { "id": "empire", "name": "Business Empire", "icon": "👑", "desc": "Win with all 5 products.", "check": { "careerProductsWon": 5 } }
+  ]
+}

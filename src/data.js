@@ -14,6 +14,8 @@ import products from "./data/products.json" with { type: "json" };
 import rivals from "./data/rivals.json" with { type: "json" };
 import scenarios from "./data/scenarios.json" with { type: "json" };
 import balance from "./data/balance.json" with { type: "json" };
+import unlocks from "./data/unlocks.json" with { type: "json" };
+import achievements from "./data/achievements.json" with { type: "json" };
 
 // Same shape as tools/load-data.mjs. engine.buildData() turns it into the data for one game.
 export const BASE = {
@@ -24,4 +26,6 @@ export const BASE = {
   rivals: rivals.rivals,
   scenarios: scenarios.scenarios,
   balance,
+  unlocks,
+  achievements: achievements.achievements,
 };
