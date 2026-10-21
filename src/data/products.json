@@ -34,7 +34,7 @@
       "shops": 0.0,
       "effects": {
         "margin": 0.5,
-        "patent": -0.25,
+        "patent": -0.1,
         "travel": -0.2
       },
       "startCash": 700,
@@ -62,8 +62,8 @@
       "shops": 0.0,
       "effects": {
         "travel": 0.6,
-        "margin": -0.5,
-        "loyalty": -0.2
+        "margin": -0.35,
+        "loyalty": -0.3
       },
       "startCash": 550,
       "upgrades": "upgrades/app.json",
@@ -86,12 +86,12 @@
       "name": "Video Game",
       "defaultBrand": "Pixel Quest",
       "pitch": "You built a game with your friends after school. Now the whole world wants to play it.",
-      "appeal": 0.95,
+      "appeal": 0.9,
       "social": 0.3,
       "shops": 0.1,
       "effects": {
-        "bubbles": 0.3,
-        "costCut": -0.2
+        "bubbles": 0.1,
+        "costCut": -0.3
       },
       "startCash": 750,
       "upgrades": "upgrades/game.json",
@@ -120,7 +120,7 @@
         "loyalty": 0.3,
         "margin": 0.2,
         "travel": -0.4,
-        "costCut": -0.3
+        "costCut": -0.2
       },
       "startCash": 900,
       "upgrades": "upgrades/burger.json",

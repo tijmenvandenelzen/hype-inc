@@ -37,6 +37,7 @@ Keys on a Mac: space pauses, 1 2 3 set the speed, U opens upgrades.
 | `src/art/`, `public/fonts/`, `public/icons/` | Icon sprite, fonts and app icons. |
 | `src/map-data.js` | The world dot map. Made by `tools/make-map.mjs`. |
 | `tools/sim.mjs` | Plays many games with bots to check the balance. |
+| `sim/` | Balance sim with smarter bots and targets. See `sim/README.md`. |
 | `tools/build.mjs` | Builds `dist/` (web app) and `dist-preview/` (one HTML file). |
 | `tools/smoke.mjs` | Plays the built game in a headless browser and saves screenshots. |
 
@@ -60,8 +61,9 @@ npm run sim -- 40 soda all   # one product, all challenges
 npx serve dist       # play locally
 ```
 
-To change the balance, edit `src/data/balance.json` or `src/data/rival.json`,
-then run `npm run sim`. Aim for: good bot wins most games, idle bot never wins.
+To change the balance, edit the files in `src/data/`, then run
+`npm run balance`. It checks the win rates against `sim/targets.json`. See
+`sim/README.md`.
 
 ## Deploy
 

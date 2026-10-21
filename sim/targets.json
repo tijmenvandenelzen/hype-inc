@@ -1,0 +1,53 @@
+{
+  "_note": "Balance targets for sim/run.mjs. win: [min, max] win rate in percent for each bot, by scenario difficulty. The kid targets for difficulty 3 are higher than a first-time player would get, because those scenarios unlock only after wins. days: [min, max] median day of a win for the smart bot (1.5 s per day at speed 1). spread: max gap in points between the best and the worst product for the smart bot in one scenario. rushBelowSmart: the rush bot (no defense) should win at least this many points less than the smart bot. It is a warning only, because TrendLab is beaten with growth upgrades.",
+  "win": {
+    "1": {
+      "smart": [
+        85,
+        100
+      ],
+      "kid": [
+        55,
+        85
+      ],
+      "idle": [
+        0,
+        5
+      ]
+    },
+    "2": {
+      "smart": [
+        70,
+        92
+      ],
+      "kid": [
+        30,
+        65
+      ],
+      "idle": [
+        0,
+        5
+      ]
+    },
+    "3": {
+      "smart": [
+        50,
+        85
+      ],
+      "kid": [
+        20,
+        60
+      ],
+      "idle": [
+        0,
+        5
+      ]
+    }
+  },
+  "rushBelowSmart": 5,
+  "days": [
+    200,
+    420
+  ],
+  "spread": 30
+}
