@@ -255,7 +255,7 @@ const TIPS = [
     when: () => shown("#upgrades") && !!$('#tabs [data-t="channels"][aria-selected="true"]'),
     target: () => $("#tree"),
     title: "Channels",
-    text: "Channels spread your drink to new regions faster. Many of them cost money each day, so check your cash first.",
+    text: () => `Channels bring ${brand()} to new regions faster. Many of them cost money each day, so check your cash first.`,
   },
   {
     id: "tree-defense",
